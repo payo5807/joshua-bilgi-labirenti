@@ -1,0 +1,956 @@
+import pygame, random, sys, os, json, colorsys
+import ctypes 
+
+# ==========================================
+# EXE YOLUNU SABİTLEME
+if getattr(sys, 'frozen', False):
+    application_path = os.path.dirname(sys.executable)
+else:
+    application_path = os.path.dirname(os.path.abspath(__file__))
+os.chdir(application_path) 
+# ==========================================
+
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except:
+    pass
+
+WIDTH, HEIGHT = 1280, 720
+GRID_SIZE, TILE_SIZE = 7, 65
+OFFSET_X, OFFSET_Y = 412, 100 
+
+TEXT_DARK, TEXT_ORANGE = (40, 50, 80), (240, 150, 20)      
+BTN_GREEN, BTN_BLUE = (60, 200, 110), (50, 140, 255)
+BTN_PURPLE, BTN_YELLOW, BTN_RED = (140, 70, 220), (250, 180, 30), (245, 75, 85)
+
+BASE_COLORS = [(45, 130, 255), (40, 180, 85), (245, 75, 85), (250, 180, 30)]
+
+BILGI_HAPLARI = ["İlk Türk yer gözlem uydusunun adı RASAT'tır.", "DNA'mızın %50'si bir muzun DNA'sı ile aynıdır!", "İstiklal Marşı, 12 Mart 1921'de kabul edilmiştir.", "Güneş ışığı Dünya'ya 8 dakikada ulaşır."]
+AVATARS = [(30,144,255), (255,105,180)]
+
+def get_turkish_suffix(name):
+    if not name: return ""
+    vowels = "AEIİOÖUÜ"
+    name_u, last_v = name.upper(), "E"
+    for c in reversed(name_u):
+        if c in vowels: last_v = c; break
+    ev = name_u[-1] in vowels
+    if last_v in "AI": return "'NIN" if ev else "'IN"
+    if last_v in "Eİ": return "'NİN" if ev else "'İN"
+    if last_v in "OU": return "'NUN" if ev else "'UN"
+    if last_v in "ÖÜ": return "'NÜN" if ev else "'ÜN"
+    return "'İN"
+
+def load_questions_db():
+    if os.path.exists("sorular.json"):
+        try:
+            with open("sorular.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except: return {}
+    return {}
+
+SORU_HAVUZU = load_questions_db()
+
+def get_fallback_question(sinif, ders):
+    return {"q": f"{sinif}. Sınıf {ders} sorusu henüz eklenmedi. Veritabanını güncelleyin.", "a": "Tamam", "s": ["Tamam", "Geç", "Hata"]}
+
+pygame.init()
+pygame.mixer.init()
+
+display_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+MON_W, MON_H = display_screen.get_size() 
+SCALE_X = MON_W / WIDTH
+SCALE_Y = MON_H / HEIGHT
+
+screen = pygame.Surface((WIDTH, HEIGHT))
+pygame.display.set_caption("Bilgi Labirenti")
+clock = pygame.time.Clock()
+
+font_xs = pygame.font.SysFont("Segoe UI", 14, bold=True)
+font_sm = pygame.font.SysFont("Segoe UI", 16, bold=True)
+font_md = pygame.font.SysFont("Segoe UI", 22, bold=True)
+font_lg = pygame.font.SysFont("Segoe UI", 28, bold=True)
+font_xl = pygame.font.SysFont("Segoe UI", 40, bold=True)
+font_title = pygame.font.SysFont("Segoe UI", 65, bold=True)
+
+class Game:
+    def __init__(self):
+        self.player_name, self.player_class, self.player_avatar_idx, self.input_active = "", "11", 0, False
+        self.selected_lessons = [] 
+        self.lesson_colors = {}
+        self.level, self.unlocked_levels = 1, 1 
+        self.score, self.gold, self.lives = 0, 0, 3
+        
+        self.gen_vol, self.music_vol = 1.0, 1.0
+        self.sfx_click, self.sfx_effects, self.dark_mode = True, True, False
+        self.dragging_slider = None
+        self.current_music_track = None
+        self.lobby_music, self.bg_music = None, None
+
+        self.grid = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        self.offsets = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        self.current_layout, self.selected = [], None
+        self.mistakes_log, self.frame_type = [], "NORMAL"
+        self.current_q, self.current_ans, self.current_opts, self.joker_used = "", "", [], False
+        self.weekly_q_count, self.weekly_correct, self.current_q_tip = 0, 0, ""
+
+        self.inventory = {"hammer": 2, "shuffle": 2, "add_moves": 2}
+        self.moves_left, self.hammer_mode = 15, False 
+        self.combo, self.combo_timer, self.max_combo_time = 1, 0, 180 
+        self.bomb_count = 0 
+        
+        self.stats, self.level_fails, self.consecutive_wins = {}, {}, 0
+        self.wheel_spun = False
+        self.wheel_items = [{"n": "100 ALTIN", "c": BTN_YELLOW, "v": 100, "t": "gold"}, {"n": "+1 CAN", "c": BTN_RED, "v": 1, "t": "life"}, {"n": "1 ÇEKİÇ", "c": BTN_PURPLE, "v": 1, "t": "hammer"}, {"n": "1 YENİLE", "c": BTN_BLUE, "v": 1, "t": "shuffle"}, {"n": "+5 HAMLE", "c": BTN_GREEN, "v": 1, "t": "add_moves"}]
+        self.wheel_idx, self.wheel_ticks, self.wheel_result = 0, 0, None
+        self.shake_timer, self.particles = 0, []
+        self.ast_msg, self.ast_timer = "HADİ BAŞLAYALIM!", 120
+        self.swap_anim = None 
+
+        self.load_avatars()
+        self.load_sounds()
+        
+        if self.load_game(): 
+            self.update_lesson_colors()
+            self.set_state("MENU")
+        else: 
+            self.set_default_lessons()
+            self.set_state("PROFILE")
+        self.init_level_targets()
+
+    def set_state(self, new_state):
+        self.state = new_state
+        if new_state in ["PLAYING", "PAUSED", "QUESTION"]:
+            self.change_music("game")
+        else:
+            self.change_music("lobby")
+
+    def load_sounds(self):
+        self.sounds = {}
+        sound_names = ["click", "match", "bomb", "win", "lose"]
+        for name in sound_names:
+            self.sounds[name] = None
+            for ext in [".wav", ".mp3", ".ogg"]:
+                if os.path.exists(name + ext):
+                    try:
+                        self.sounds[name] = pygame.mixer.Sound(name + ext)
+                        break 
+                    except: pass
+                    
+        for ext in [".mp3", ".wav", ".ogg"]:
+            if os.path.exists("lobby" + ext): self.lobby_music = "lobby" + ext; break
+        for ext in [".mp3", ".wav", ".ogg"]:
+            if os.path.exists("bg_music" + ext): self.bg_music = "bg_music" + ext; break
+
+    def play_sfx(self, name):
+        if self.gen_vol == 0: return
+        if name == "click" and not self.sfx_click: return
+        if name in ["match", "bomb", "win", "lose"] and not self.sfx_effects: return
+        
+        if self.sounds.get(name):
+            self.sounds[name].set_volume(self.gen_vol)
+            self.sounds[name].play()
+
+    def change_music(self, track_type):
+        target_track = self.lobby_music if track_type == "lobby" else self.bg_music
+        if self.current_music_track != target_track:
+            self.current_music_track = target_track
+            if target_track:
+                try:
+                    pygame.mixer.music.load(target_track)
+                    pygame.mixer.music.set_volume(self.gen_vol * self.music_vol)
+                    pygame.mixer.music.play(-1)
+                except: pass
+            else:
+                pygame.mixer.music.stop()
+
+    def set_default_lessons(self):
+        if int(self.player_class) >= 9: self.selected_lessons = ["MAT", "FİZ", "EDE", "TAR"]
+        else: self.selected_lessons = ["MAT", "FEN", "TÜR", "SOS"]
+        self.update_lesson_colors()
+
+    def update_lesson_colors(self):
+        self.lesson_colors = {les: BASE_COLORS[i % 4] for i, les in enumerate(self.selected_lessons)}
+        for les in self.selected_lessons:
+            if les not in self.stats: self.stats[les] = [0,0]
+
+    def set_ast_msg(self, msg): self.ast_msg = msg; self.ast_timer = 120
+    def trigger_shake(self, power): self.shake_timer = power
+
+    def spawn_fireworks(self):
+        self.particles = []
+        for _ in range(120): self.particles.append([random.randint(WIDTH//2-300, WIDTH//2+300), random.randint(HEIGHT, HEIGHT+100), random.uniform(-5, 5), random.uniform(-15, -7), random.choice([BTN_RED, BTN_GREEN, BTN_BLUE, BTN_YELLOW, BTN_PURPLE])])
+
+    def generate_map_for_level(self, lvl):
+        gen = random.Random(lvl + 777)
+        layout = [[1 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        for _ in range(min(12, lvl // 2)):
+            r, c = gen.randint(0, GRID_SIZE-1), gen.randint(0, GRID_SIZE-1)
+            if not (2 <= r <= 4 and 2 <= c <= 4): layout[r][c] = 0
+        for _ in range(min(6, lvl // 4)):
+            r, c = gen.randint(1, GRID_SIZE-2), gen.randint(1, GRID_SIZE-2)
+            if layout[r][c] == 1: layout[r][c] = 2
+        return layout
+
+    def save_game(self):
+        data = {
+            "name": self.player_name, "class": self.player_class, "avatar": self.player_avatar_idx, 
+            "level": self.level, "unlocked_levels": self.unlocked_levels, 
+            "score": self.score, "gold": self.gold, "dark": self.dark_mode, "mistakes": self.mistakes_log, 
+            "frame": self.frame_type, "inventory": self.inventory, "stats": self.stats, "wheel": self.wheel_spun, 
+            "fails": self.level_fails, "cwins": self.consecutive_wins, "lessons": self.selected_lessons,
+            "gen_vol": self.gen_vol, "music_vol": self.music_vol, "sfx_click": self.sfx_click, "sfx_effects": self.sfx_effects
+        }
+        with open("kayit.json", "w", encoding="utf-8") as f: json.dump(data, f)
+
+    def load_game(self):
+        if os.path.exists("kayit.json"):
+            try:
+                with open("kayit.json", "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    self.player_name, self.player_class = data.get("name", ""), data.get("class", "11")
+                    self.player_avatar_idx = min(1, max(0, data.get("avatar", 0)))
+                    self.unlocked_levels, self.level = data.get("unlocked_levels", 1), data.get("level", 1)
+                    self.score, self.gold, self.dark_mode = data.get("score", 0), data.get("gold", 0), data.get("dark", False)
+                    self.mistakes_log, self.frame_type = data.get("mistakes", []), data.get("frame", "NORMAL")
+                    self.inventory = data.get("inventory", {"hammer": 2, "shuffle": 2, "add_moves": 2})
+                    self.stats, self.wheel_spun, self.level_fails, self.consecutive_wins = data.get("stats", {}), data.get("wheel", False), data.get("fails", {}), data.get("cwins", 0)
+                    
+                    self.gen_vol = data.get("gen_vol", 1.0)
+                    self.music_vol = data.get("music_vol", 1.0)
+                    self.sfx_click = data.get("sfx_click", True)
+                    self.sfx_effects = data.get("sfx_effects", True)
+
+                    old_lessons = data.get("lessons", [])
+                    mapping = {"TUR": "TÜR", "FIZ": "FİZ", "KIM": "KİM", "BIY": "BİY", "COG": "COĞ", "ING": "İNG", "DIN": "DİN"}
+                    self.selected_lessons = [mapping.get(l, l) for l in old_lessons]
+                    valid_les = ["MAT", "FİZ", "KİM", "BİY", "EDE", "TAR", "COĞ", "FEL", "FEN", "TÜR", "SOS", "İNG", "DİN"]
+                    self.selected_lessons = [l for l in self.selected_lessons if l in valid_les]
+                if len(self.selected_lessons) != 4: self.set_default_lessons()
+                return self.player_name != "" 
+            except: return False
+        return False
+
+    def load_avatars(self):
+        try:
+            img = pygame.image.load("avatars.jpg").convert_alpha()
+            w, h = img.get_width() // 5, img.get_height() // 2
+            self.avatar_images = [pygame.transform.smoothscale(img.subsurface(pygame.Rect(0, 0, w, h)), (80, 80)), pygame.transform.smoothscale(img.subsurface(pygame.Rect(0, h, w, h)), (80, 80))]
+        except: self.avatar_images = []
+
+    def get_fall_speed(self): return min(25, 10 + (self.level // 5))
+
+    def init_level_targets(self):
+        if not self.selected_lessons: self.set_default_lessons()
+        self.targets = {tip: 10 + int(self.level * 2.5) for tip in self.selected_lessons}
+        self.current_layout = self.generate_map_for_level(self.level)
+        self.moves_left, self.hammer_mode, self.combo, self.combo_timer, self.current_fact, self.bomb_count = 15 + int(self.level * 0.5), False, 1, 0, random.choice(BILGI_HAPLARI), 0 
+        fails = self.level_fails.get(str(self.level), 0)
+        if fails >= 2: self.moves_left += 5; self.set_ast_msg("Yapay Zeka: +5 Hamle Destek!")
+        elif self.consecutive_wins >= 3: self.moves_left -= 2; self.set_ast_msg("Yapay Zeka: Zorluk Arttı!")
+
+        for r in range(GRID_SIZE):
+            for c in range(GRID_SIZE): self.grid[r][c] = "ENGEL" if self.current_layout[r][c] == 2 else None if self.current_layout[r][c] == 0 else None
+        self.fill_grid()
+
+    def get_theme(self):
+        if self.dark_mode: return {"bg": (25, 28, 35), "menu_bg": (20, 30, 45), "panel": (35, 40, 50), "border": (50, 60, 80), "shadow": (15, 18, 25), "text_dark": (230, 235, 240)}
+        r, g, b = colorsys.hls_to_rgb((self.level % 50) / 50.0, 0.92, 0.6)
+        return {"bg": (int(r*255), int(g*255), int(b*255)), "menu_bg": (225, 240, 255), "panel": (248, 250, 255), "border": (210, 225, 245), "shadow": (235, 230, 220), "text_dark": TEXT_DARK}
+
+    def draw_text(self, text, f, color, x, y, center=True):
+        img = f.render(str(text), True, color); screen.blit(img, img.get_rect(center=(x, y)) if center else (x, y))
+
+    def draw_panel(self, rect, radius=15, shadow=True, custom_bg=None):
+        theme = self.get_theme()
+        if shadow: pygame.draw.rect(screen, theme["shadow"], pygame.Rect(rect[0], rect[1]+5, rect[2], rect[3]), border_radius=radius)
+        pygame.draw.rect(screen, custom_bg if custom_bg else theme["panel"], rect, border_radius=radius); pygame.draw.rect(screen, theme["border"], rect, 3, border_radius=radius)
+
+    def draw_button(self, rect, color, radius=20):
+        pygame.draw.rect(screen, (max(0, color[0]-40), max(0, color[1]-40), max(0, color[2]-40)), pygame.Rect(rect[0], rect[1]+5, rect[2], rect[3]), border_radius=radius)
+        pygame.draw.rect(screen, color, rect, border_radius=radius)
+
+    def draw_avatar(self, idx, cx, cy, radius=30):
+        if self.avatar_images and len(self.avatar_images) > idx: screen.blit(pygame.transform.smoothscale(self.avatar_images[idx], (radius*2, radius*2)), (cx - radius, cy - radius))
+        else: pygame.draw.circle(screen, AVATARS[idx], (cx, cy), radius)
+        pygame.draw.circle(screen, BTN_YELLOW if self.frame_type == "GOLD" else (0, 255, 255) if self.frame_type == "DIAMOND" else BTN_BLUE, (cx, cy), radius, max(3, radius//7))
+
+    def draw_single_tile(self, tip, tx, ty, selected=False, offset=0):
+        cx, cy = int(tx + TILE_SIZE/2), int(ty + TILE_SIZE/2 - offset)
+        if tip == "ENGEL":
+            pygame.draw.rect(screen, (101,67,33), (tx+5, ty+5-offset, TILE_SIZE-10, TILE_SIZE-10), border_radius=8)
+            self.draw_text("KAYA", font_sm, (255,255,255), cx, cy)
+        elif tip == "BOMB":
+            pygame.draw.circle(screen, (20,20,20), (cx, cy), TILE_SIZE//2-4)
+            pygame.draw.circle(screen, BTN_RED, (cx, cy-15), 5)
+            self.draw_text("BOM", font_sm, (255,255,255), cx, cy+5)
+        else:
+            les_color = self.lesson_colors.get(tip, BTN_BLUE)
+            pygame.draw.circle(screen, les_color, (cx, cy), TILE_SIZE//2-4)
+            pygame.draw.circle(screen, (255,255,255), (cx-12, cy-12), 6)
+            self.draw_text(tip, font_sm, (255,255,255), cx, cy+5)
+        if selected:
+            pygame.draw.rect(screen, BTN_YELLOW, (tx, ty-offset, TILE_SIZE-2, TILE_SIZE-2), 5, border_radius=10)
+            pygame.draw.circle(screen, (255,255,255), (cx, cy), TILE_SIZE//2, 2)
+
+    def remove_matches(self):
+        matched = set()
+        for r in range(GRID_SIZE):
+            for c in range(GRID_SIZE-2):
+                if self.grid[r][c] and self.grid[r][c] not in ["ENGEL", "BOMB"] and self.grid[r][c] == self.grid[r][c+1] == self.grid[r][c+2]: matched.update([(r,c), (r,c+1), (r,c+2)])
+        for c in range(GRID_SIZE):
+            for r in range(GRID_SIZE-2):
+                if self.grid[r][c] and self.grid[r][c] not in ["ENGEL", "BOMB"] and self.grid[r][c] == self.grid[r+1][c] == self.grid[r+2][c]: matched.update([(r,c), (r+1,c), (r+2,c)])
+        if matched:
+            self.play_sfx("match"); tip = self.grid[list(matched)[0][0]][list(matched)[0][1]]; m_len = len(matched); b_spawned = False
+            if m_len >= 4 and self.bomb_count < 2: 
+                br, bc = list(matched)[0]; self.grid[br][bc] = "BOMB"; matched.remove((br, bc)); b_spawned = True; self.bomb_count += 1; self.set_ast_msg(f"BOMBA! ({self.bomb_count}/2)")
+            if self.targets[tip] > 0:
+                self.targets[tip] = max(0, self.targets[tip] - m_len)
+                if self.targets[tip] == 0: self.trigger_question(tip)
+            for r, c in list(matched):
+                for nr, nc in [(r-1,c), (r+1,c), (r,c-1), (r,c+1)]:
+                    if 0 <= nr < GRID_SIZE and 0 <= nc < GRID_SIZE and self.grid[nr][nc] == "ENGEL": self.grid[nr][nc] = None; self.score += 50 * self.combo
+            for r, c in matched: self.grid[r][c] = None
+            if not b_spawned: self.set_ast_msg("HARİKA!")
+            self.score += m_len * 10 * self.combo; self.combo += 1; self.combo_timer = self.max_combo_time
+            return True
+        return False
+
+    def explode_bomb(self, r, c):
+        self.play_sfx("bomb"); self.set_ast_msg("BÜYÜK PATLAMA!"); self.score += 300; self.trigger_shake(15) 
+        for nr in range(r-1, r+2):
+            for nc in range(c-1, c+2):
+                if 0 <= nr < GRID_SIZE and 0 <= nc < GRID_SIZE:
+                    if self.grid[nr][nc] in self.selected_lessons and self.targets[self.grid[nr][nc]] > 0:
+                        self.targets[self.grid[nr][nc]] = max(0, self.targets[self.grid[nr][nc]] - 1)
+                        if self.targets[self.grid[nr][nc]] == 0: self.trigger_question(self.grid[nr][nc])
+                    self.grid[nr][nc] = None
+
+    def trigger_question(self, tip):
+        sinif_havuzu = SORU_HAVUZU.get(self.player_class, {})
+        ders_soruları = sinif_havuzu.get(tip, [])
+        if not ders_soruları: q_data = get_fallback_question(self.player_class, tip)
+        else: q_data = random.choice(ders_soruları)
+
+        self.current_q, self.current_ans, self.current_opts, self.current_q_tip = q_data["q"], q_data["a"], q_data["s"].copy(), tip
+        random.shuffle(self.current_opts); self.joker_used = False; self.set_state("QUESTION")
+
+    def trigger_weekly_question(self):
+        tip = random.choice(self.selected_lessons)
+        sinif_havuzu = SORU_HAVUZU.get(self.player_class, {})
+        ders_soruları = sinif_havuzu.get(tip, [])
+        if not ders_soruları: q_data = get_fallback_question(self.player_class, tip)
+        else: q_data = random.choice(ders_soruları)
+        self.current_q, self.current_ans, self.current_opts = q_data["q"], q_data["a"], q_data["s"].copy()
+        self.current_q_tip = tip
+        random.shuffle(self.current_opts); self.set_state("WEEKLY_QUESTION")
+
+    def fill_grid(self):
+        for c in range(GRID_SIZE):
+            for r in range(GRID_SIZE-1, -1, -1):
+                if self.current_layout[r][c] == 0 or self.grid[r][c] == "ENGEL": continue
+                if self.grid[r][c] is None:
+                    found = False
+                    for k in range(r-1, -1, -1):
+                        if self.current_layout[k][c] == 0: continue
+                        if self.grid[k][c] == "ENGEL": break
+                        if self.grid[k][c] is not None:
+                            self.grid[r][c], self.grid[k][c] = self.grid[k][c], None
+                            self.offsets[r][c] = (r-k) * TILE_SIZE; found = True; break
+                    if not found: self.grid[r][c] = random.choice(self.selected_lessons); self.offsets[r][c] = (r + 5) * TILE_SIZE
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if self.state == "PROFILE" and self.input_active:
+                if event.key == pygame.K_BACKSPACE: self.player_name = self.player_name[:-1]
+                elif len(self.player_name) < 12 and event.unicode.isprintable(): self.player_name += event.unicode
+        
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.dragging_slider = None
+
+        elif event.type == pygame.MOUSEMOTION:
+            if getattr(self, 'dragging_slider', None):
+                raw_x, raw_y = event.pos
+                x = int(raw_x / SCALE_X)
+                sx = WIDTH//2 + 30
+                sw = 250
+                val = max(0.0, min(1.0, (x - sx) / float(sw)))
+                if self.dragging_slider == "gen_vol":
+                    self.gen_vol = val
+                    pygame.mixer.music.set_volume(self.gen_vol * self.music_vol)
+                elif self.dragging_slider == "music_vol":
+                    self.music_vol = val
+                    pygame.mixer.music.set_volume(self.gen_vol * self.music_vol)
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            self.play_sfx("click")
+            raw_x, raw_y = event.pos
+            x, y = int(raw_x / SCALE_X), int(raw_y / SCALE_Y)
+            
+            if self.state == "PROFILE":
+                if pygame.Rect(WIDTH//2-100, 95, 250, 40).collidepoint(x, y): self.input_active = True
+                else: self.input_active = False
+                for i in range(12):
+                    bx, by = WIDTH//2-250+(i%6)*85, 180+(i//6)*50
+                    if bx < x < bx+65 and by < y < by+40: self.player_class = str(i+1); self.set_default_lessons() 
+                is_high_school = int(self.player_class) >= 9
+                d_list = ["MAT", "FİZ", "KİM", "BİY", "EDE", "TAR", "COĞ", "FEL"] if is_high_school else ["MAT", "FEN", "TÜR", "SOS", "İNG", "DİN"]
+                for i, les in enumerate(d_list):
+                    bx, by = WIDTH//2-250+(i%4)*130, 320+(i//4)*50
+                    if bx < x < bx+110 and by < y < by+40:
+                        if les in self.selected_lessons: self.selected_lessons.remove(les)
+                        elif len(self.selected_lessons) < 4: self.selected_lessons.append(les)
+                        self.update_lesson_colors()
+                for i in range(2):
+                    cx, cy = (WIDTH//2 - 100) + (i*200), 520
+                    if (x-cx)**2 + (y-cy)**2 <= 40**2: self.player_avatar_idx = i
+                if WIDTH//2-150 < x < WIDTH//2+150 and 620 < y < 680:
+                    if self.player_name == "": self.player_name = "Öğrenci"
+                    if len(self.selected_lessons) == 4: self.save_game(); self.set_state("MENU")
+
+            elif self.state == "MENU":
+                btns = [{"rect": (WIDTH//2-200, 260, 400, 60), "act": "PLAYING"}, {"rect": (WIDTH//2-200, 330, 190, 60), "act": "LEVEL_SELECT"}, {"rect": (WIDTH//2+10, 330, 190, 60), "act": "WEEKLY_INTRO"}, {"rect": (WIDTH//2-200, 400, 190, 60), "act": "MARKET"}, {"rect": (WIDTH//2+10, 400, 190, 60), "act": "MISTAKES_LOG"}, {"rect": (WIDTH//2-200, 470, 190, 60), "act": "SETTINGS"}, {"rect": (WIDTH//2+10, 470, 190, 60), "act": "SCORES"}]
+                for b in btns:
+                    if b["rect"][0] < x < b["rect"][0]+b["rect"][2] and b["rect"][1] < y < b["rect"][1]+b["rect"][3]:
+                        if b["act"] == "PLAYING": self.init_level_targets()
+                        self.set_state(b["act"])
+                if 50 < x < 250 and 120 < y < 155: self.set_state("PROFILE")
+                if 30 < x < 230 and HEIGHT-100 < y < HEIGHT-30: self.set_state("TEACHER_PANEL") 
+                
+                if not self.wheel_spun and WIDTH-250 < x < WIDTH-50 and HEIGHT-180 < y < HEIGHT-110: 
+                    self.set_state("SPIN_WHEEL"); self.wheel_ticks = random.randint(40, 70)
+                
+                if WIDTH - 180 < x < WIDTH - 30 and HEIGHT - 80 < y < HEIGHT - 30:
+                    self.save_game(); pygame.quit(); sys.exit()
+
+            elif self.state == "SPIN_WHEEL":
+                if self.wheel_result and WIDTH//2-100 < x < WIDTH//2+100 and 550 < y < 605: self.wheel_spun = True; self.save_game(); self.set_state("MENU")
+            elif self.state == "TEACHER_PANEL":
+                if WIDTH//2-100 < x < WIDTH//2+100 and 650 < y < 705: self.set_state("MENU")
+            elif self.state == "MARKET":
+                if WIDTH//2-100 < x < WIDTH//2+100 and 650 < y < 705: self.set_state("MENU")
+                if self.gold >= 500 and self.lives < 3 and WIDTH//2-220 < x < WIDTH//2-90 and 260 < y < 310: self.gold -= 500; self.lives = 3; self.save_game()
+                if self.gold >= 2000 and self.frame_type != "GOLD" and WIDTH//2-220 < x < WIDTH//2-90 and 360 < y < 410: self.gold -= 2000; self.frame_type = "GOLD"; self.save_game()
+                if self.gold >= 5000 and self.frame_type != "DIAMOND" and WIDTH//2-220 < x < WIDTH//2-90 and 460 < y < 510: self.gold -= 5000; self.frame_type = "DIAMOND"; self.save_game()
+                if self.gold >= 300 and WIDTH//2-190 < x < WIDTH//2-70 and 500 < y < 545: self.gold -= 300; self.inventory["hammer"] += 1; self.save_game()
+                if self.gold >= 300 and WIDTH//2-60 < x < WIDTH//2+60 and 500 < y < 545: self.gold -= 300; self.inventory["shuffle"] += 1; self.save_game()
+                if self.gold >= 400 and WIDTH//2+70 < x < WIDTH//2+190 and 500 < y < 545: self.gold -= 400; self.inventory["add_moves"] += 1; self.save_game()
+
+            elif self.state == "MISTAKES_LOG":
+                if WIDTH//2-100 < x < WIDTH//2+100 and 620 < y < 675: self.set_state("MENU")
+            elif self.state == "PAUSED":
+                if WIDTH//2-100 < x < WIDTH//2+100 and 350 < y < 405: self.set_state("PLAYING")
+                if WIDTH//2-100 < x < WIDTH//2+100 and 430 < y < 485: self.save_game(); self.set_state("MENU")
+            
+            elif self.state == "SETTINGS":
+                sx, sw = WIDTH//2 + 30, 250
+                if 200 < y < 240 and sx <= x <= sx+sw:
+                    self.dragging_slider = "gen_vol"
+                    self.gen_vol = (x - sx) / float(sw)
+                    pygame.mixer.music.set_volume(self.gen_vol * self.music_vol)
+                elif 285 < y < 325 and sx <= x <= sx+sw:
+                    self.dragging_slider = "music_vol"
+                    self.music_vol = (x - sx) / float(sw)
+                    pygame.mixer.music.set_volume(self.gen_vol * self.music_vol)
+                elif 360 < y < 415 and sx+40 <= x <= sx+110: self.sfx_click = not self.sfx_click
+                elif 445 < y < 500 and sx+40 <= x <= sx+110: self.sfx_effects = not self.sfx_effects
+                elif 530 < y < 585 and sx+40 <= x <= sx+110: self.dark_mode = not self.dark_mode
+                elif WIDTH//2-125 < x < WIDTH//2+125 and 615 < y < 670: 
+                    self.save_game(); self.set_state("MENU")
+
+            elif self.state in ["WEEKLY_INTRO", "WEEKLY_QUESTION", "WEEKLY_RESULT", "SCORES", "LEVEL_SELECT", "LEVEL_CLEARED", "GAME_OVER"]:
+                if self.state == "WEEKLY_INTRO" and WIDTH//2-150 < x < WIDTH//2+150 and 500 < y < 560: self.weekly_q_count = 0; self.weekly_correct = 0; self.trigger_weekly_question()
+                elif self.state == "WEEKLY_INTRO" and WIDTH//2-100 < x < WIDTH//2+100 and 600 < y < 650: self.set_state("MENU")
+                elif self.state == "WEEKLY_QUESTION":
+                    pw, ph = 800, 500
+                    px, py = WIDTH//2 - pw//2, HEIGHT//2 - ph//2
+                    for i in range(3):
+                        oy = py + 240 + i*75
+                        if px+100 < x < px+pw-100 and oy < y < oy+60:
+                            if self.current_opts[i] == self.current_ans: self.weekly_correct += 1
+                            self.weekly_q_count += 1
+                            if self.weekly_q_count < 5: self.trigger_weekly_question()
+                            else: self.gold += self.weekly_correct*200; self.save_game(); self.set_state("WEEKLY_RESULT")
+                            break
+                elif self.state == "WEEKLY_RESULT" and WIDTH//2-150 < x < WIDTH//2+150 and 550 < y < 610: self.set_state("MENU")
+                elif self.state == "SCORES" and WIDTH//2-100 < x < WIDTH//2+100 and 620 < y < 675: self.set_state("MENU")
+                elif self.state == "LEVEL_SELECT":
+                    if WIDTH//2-100 < x < WIDTH//2+100 and 620 < y < 675: self.set_state("MENU")
+                    for i in range(50):
+                        bx, by = WIDTH//2-300+(i%10)*70, 180+(i//10)*70
+                        if bx < x < bx+60 and by < y < by+60:
+                            if i < self.unlocked_levels: self.level = i+1; self.init_level_targets(); self.set_state("PLAYING")
+                elif self.state == "LEVEL_CLEARED":
+                    if WIDTH//2-210 < x < WIDTH//2-10 and 450 < y < 505: self.particles = []; self.set_state("LEVEL_SELECT")
+                    if WIDTH//2+10 < x < WIDTH//2+210 and 450 < y < 505:
+                        if self.level < 50: self.particles = []; self.level += 1; self.init_level_targets(); self.set_state("PLAYING")
+                elif self.state == "GAME_OVER":
+                    if WIDTH//2-100 < x < WIDTH//2+100 and 450 < y < 505: self.lives = 3; self.init_level_targets(); self.save_game(); self.set_state("MENU")
+
+            elif self.state == "QUESTION":
+                pw, ph = 800, 500
+                px, py = WIDTH//2 - pw//2, HEIGHT//2 - ph//2
+                jy = py + 160
+                
+                if not self.joker_used and self.gold >= 200 and px+100 < x < px+320 and jy < y < jy+50:
+                    self.gold -= 200; self.joker_used = True
+                    for i in range(3):
+                        if self.current_opts[i] != self.current_ans: self.current_opts[i] = " "; break
+                if self.gold >= 500 and px+480 < x < px+700 and jy < y < jy+50:
+                    self.gold -= 500; self.set_state("PLAYING")
+                    if all(v <= 0 for v in self.targets.values()):
+                        if self.unlocked_levels == self.level and self.level < 50: self.unlocked_levels += 1 
+                        self.consecutive_wins += 1; self.level_fails[str(self.level)] = 0; self.spawn_fireworks(); self.save_game(); self.play_sfx("win"); self.set_state("LEVEL_CLEARED")
+                    return
+                for i in range(3):
+                    if self.current_opts[i] == " ": continue 
+                    oy = py + 240 + i*75
+                    if px+100 < x < px+pw-100 and oy < y < oy+60:
+                        self.stats[self.current_q_tip][1] += 1 
+                        if self.current_opts[i] == self.current_ans: 
+                            self.stats[self.current_q_tip][0] += 1; self.gold += 100; self.score += 150; self.set_ast_msg("BİLİRDİM!")
+                        else: 
+                            self.lives -= 1; self.set_ast_msg("KAYDEDİLDİ!")
+                            found = False
+                            for m in self.mistakes_log:
+                                if m["q"] == self.current_q: found = True; break
+                            if not found: self.mistakes_log.append({"q": self.current_q, "a": self.current_ans})
+                            if self.lives <= 0: self.consecutive_wins = 0; self.level_fails[str(self.level)] = self.level_fails.get(str(self.level), 0) + 1; self.play_sfx("lose"); self.set_state("GAME_OVER"); return
+                        self.set_state("PLAYING")
+                        if all(v <= 0 for v in self.targets.values()):
+                            if self.unlocked_levels == self.level and self.level < 50: self.unlocked_levels += 1 
+                            self.consecutive_wins += 1; self.level_fails[str(self.level)] = 0; self.spawn_fireworks(); self.save_game(); self.play_sfx("win"); self.set_state("LEVEL_CLEARED")
+                        break
+
+            elif self.state == "PLAYING":
+                if self.swap_anim: return 
+                if any(any(o > 0 for o in row) for row in self.offsets): return 
+                
+                rx = OFFSET_X + GRID_SIZE*TILE_SIZE + (WIDTH - (OFFSET_X + GRID_SIZE*TILE_SIZE)) // 2
+                if rx - 60 < x < rx + 60 and 40 < y < 90: self.set_state("PAUSED")
+                
+                bot_y = HEIGHT - 80
+                if OFFSET_X < x < OFFSET_X+140 and bot_y < y < bot_y+50:
+                    if self.inventory["hammer"] > 0: self.hammer_mode = not self.hammer_mode
+                if OFFSET_X+160 < x < OFFSET_X+300 and bot_y < y < bot_y+50:
+                    if self.inventory["shuffle"] > 0:
+                        self.inventory["shuffle"] -= 1; tiles = []
+                        for r in range(GRID_SIZE):
+                            for c in range(GRID_SIZE):
+                                if self.grid[r][c] and self.grid[r][c] not in ["ENGEL", "BOMB"]: tiles.append(self.grid[r][c])
+                        random.shuffle(tiles)
+                        for r in range(GRID_SIZE):
+                            for c in range(GRID_SIZE):
+                                if self.grid[r][c] and self.grid[r][c] not in ["ENGEL", "BOMB"]: self.grid[r][c] = tiles.pop()
+                        self.remove_matches(); self.hammer_mode = False
+                if OFFSET_X+320 < x < OFFSET_X+460 and bot_y < y < bot_y+50:
+                    if self.inventory["add_moves"] > 0: self.inventory["add_moves"] -= 1; self.moves_left += 5; self.hammer_mode = False
+
+                c, r = (x-OFFSET_X)//TILE_SIZE, (y-OFFSET_Y)//TILE_SIZE
+                if 0 <= r < GRID_SIZE and 0 <= c < GRID_SIZE and self.current_layout[r][c] != 0:
+                    if self.hammer_mode:
+                        if self.grid[r][c] is not None:
+                            if self.grid[r][c] == "BOMB": self.explode_bomb(r, c)
+                            else: self.grid[r][c] = None
+                            self.inventory["hammer"] -= 1; self.hammer_mode = False; self.score += 50
+                            if not self.remove_matches(): self.fill_grid()
+                        return
+                    if self.grid[r][c] != "ENGEL":
+                        if self.grid[r][c] == "BOMB":
+                            self.explode_bomb(r, c); self.selected = None
+                            if not self.remove_matches(): self.fill_grid()
+                            return
+                        if self.selected:
+                            r1, c1 = self.selected
+                            if abs(r-r1)+abs(c-c1) == 1 and self.grid[r1][c1] != "ENGEL":
+                                if self.grid[r1][c1] == "BOMB":
+                                    self.explode_bomb(r1, c1); self.selected = None
+                                    if not self.remove_matches(): self.fill_grid()
+                                    return
+                                self.swap_anim = {"r1": r1, "c1": c1, "r2": r, "c2": c, "progress": 0.0, "reverse": False}
+                                self.selected = None
+                            else:
+                                self.selected = None
+                        else: 
+                            if self.grid[r][c] is not None: self.selected = (r, c)
+
+    def draw_menu(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"])
+        self.draw_text(f"{self.player_name.upper()}{get_turkish_suffix(self.player_name)}", font_title, (250, 180, 30), WIDTH//2, 140)
+        self.draw_panel((WIDTH//2 - 180, 190, 360, 50), radius=15, custom_bg=BTN_BLUE); self.draw_text("BİLGİ LABİRENTİ", font_lg, (255, 255, 255), WIDTH//2, 215)
+        self.draw_button((WIDTH//2-200, 260, 400, 60), BTN_GREEN, 20); self.draw_text(f"BAŞLA (Bölüm {self.level})", font_lg, (255, 255, 255), WIDTH//2, 290)
+        btns = [("BÖLÜMLER", BTN_BLUE, WIDTH//2-200, 330), ("HAFTALIK TEST", BTN_PURPLE, WIDTH//2+10, 330), ("MARKET", BTN_YELLOW, WIDTH//2-200, 400), ("BİLGİ DEFTERİ", BTN_RED, WIDTH//2+10, 400), ("AYARLAR", (100,100,100), WIDTH//2-200, 470), ("İSTATİSTİKLER", (100,150,200), WIDTH//2+10, 470)]
+        for t, c, x, y in btns: self.draw_button((x, y, 190, 60), c, 20); self.draw_text(t, font_md, (255, 255, 255), x+95, y+30)
+        
+        self.draw_panel((30, 30, 240, 140), 20); self.draw_avatar(self.player_avatar_idx, 70, 80, 25)
+        self.draw_text(self.player_name.upper(), font_lg, theme["text_dark"], 110, 55, False); self.draw_text(f"{self.player_class}. Sınıf", font_sm, BTN_BLUE, 110, 85, False)
+        self.draw_button((50, 120, 200, 35), BTN_PURPLE, 10); self.draw_text("DÜZENLE", font_sm, (255,255,255), 150, 137)
+        self.draw_panel((WIDTH-220, 30, 190, 60), 20, custom_bg=(255,250,220)); self.draw_text(f"ALTIN: {self.gold}", font_lg, TEXT_ORANGE, WIDTH-125, 60)
+        self.draw_button((30, HEIGHT-100, 200, 70), (40,50,70), 15); self.draw_text("EĞİTMEN PANELİ", font_sm, (255,255,255), 130, HEIGHT-65)
+        
+        self.draw_button((WIDTH - 180, HEIGHT - 80, 150, 50), BTN_RED, 15)
+        self.draw_text("ÇIKIŞ", font_lg, (255, 255, 255), WIDTH - 105, HEIGHT - 55)
+
+        if not self.wheel_spun:
+            self.draw_panel((WIDTH-250, HEIGHT-180, 200, 70), 15, custom_bg=BTN_YELLOW); self.draw_text("ŞANS ÇARKI", font_sm, BTN_RED, WIDTH-150, HEIGHT-165); self.draw_text("Tıkla Çevir!", font_md, TEXT_DARK, WIDTH-150, HEIGHT-140)
+
+    def draw_spin_wheel(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"])
+        self.draw_text("GÜNLÜK ŞANS ÇARKI", font_title, BTN_YELLOW, WIDTH//2, 100)
+        if self.wheel_ticks > 0:
+            self.wheel_idx = (self.wheel_idx + 1) % len(self.wheel_items); self.draw_text("Dönüyor...", font_lg, TEXT_DARK, WIDTH//2, 200)
+        else:
+            if not self.wheel_result:
+                self.wheel_result = self.wheel_items[self.wheel_idx]; r = self.wheel_result
+                if r["t"] == "gold": self.gold += r["v"]
+                elif r["t"] == "life": self.lives = min(3, self.lives + r["v"])
+                else: self.inventory[r["t"]] += r["v"]
+            self.draw_text("KAZANDIN!", font_lg, BTN_GREEN, WIDTH//2, 200)
+        for i, item in enumerate(self.wheel_items):
+            y = 280 + i * 65
+            if i == self.wheel_idx: self.draw_panel((WIDTH//2-200, y-5, 400, 60), 15, custom_bg=(255,255,255)); self.draw_text(item["n"], font_xl, item["c"], WIDTH//2, y+25)
+            else: self.draw_button((WIDTH//2-150, y, 300, 50), item["c"], 15); self.draw_text(item["n"], font_md, (255,255,255), WIDTH//2, y+25)
+        if self.wheel_result: self.draw_button((WIDTH//2-100, 550, 200, 55), BTN_BLUE, 20); self.draw_text("MENÜYE DÖN", font_md, (255,255,255), WIDTH//2, 577)
+
+    def draw_teacher_panel(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("EĞİTMEN & VELİ İSTATİSTİK PANELİ", font_title, (40,50,70), WIDTH//2, 80)
+        self.draw_panel((WIDTH//2-350, 150, 700, 480), 20, custom_bg=(255,255,255))
+        self.draw_text(f"Öğrenci: {self.player_name.upper()} | Sınıf: {self.player_class}", font_lg, TEXT_DARK, WIDTH//2, 190)
+        for i, ders in enumerate(self.selected_lessons):
+            y = 250 + i * 80; data = self.stats.get(ders, [0,0]); dogru, toplam = data[0], data[1]; oran = dogru / toplam if toplam > 0 else 0
+            self.draw_text(f"{ders} ({dogru}/{toplam})", font_md, self.lesson_colors.get(ders, BTN_BLUE), WIDTH//2-280, y, False)
+            pygame.draw.rect(screen, (220,220,220), (WIDTH//2-100, y, 400, 30), border_radius=10)
+            pygame.draw.rect(screen, self.lesson_colors.get(ders, BTN_BLUE), (WIDTH//2-100, y, int(400*oran), 30), border_radius=10)
+            self.draw_text(f"%{int(oran*100)}", font_sm, (255,255,255) if oran > 0 else TEXT_DARK, WIDTH//2-80 + int(400*oran)/2 if oran > 0 else WIDTH//2-80, y+15)
+        self.draw_button((WIDTH//2-100, 650, 200, 55), BTN_RED, 20); self.draw_text("GERİ DÖN", font_md, (255,255,255), WIDTH//2, 677)
+
+    def draw_market(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("MARKET", font_title, BTN_YELLOW, WIDTH//2, 80)
+        self.draw_panel((WIDTH-220, 30, 190, 60), 20, custom_bg=(255,250,220)); self.draw_text(f"ALTIN: {self.gold}", font_lg, TEXT_ORANGE, WIDTH-125, 60)
+        self.draw_panel((WIDTH//2-250, 150, 500, 480), 25)
+        self.draw_text("3 CAN DOLDUR", font_md, theme["text_dark"], WIDTH//2-90, 235); self.draw_button((WIDTH//2+40, 210, 130, 50), BTN_GREEN if self.gold>=500 and self.lives<3 else (150,150,150), 15); self.draw_text("500", font_md, (255,255,255), WIDTH//2+105, 235)
+        self.draw_text("ALTIN ÇERÇEVE", font_md, BTN_YELLOW, WIDTH//2-90, 315); self.draw_button((WIDTH//2+40, 290, 130, 50), BTN_GREEN if self.gold>=2000 and self.frame_type!="GOLD" else (150,150,150), 15); self.draw_text("ALINDI" if self.frame_type=="GOLD" else "2000", font_md, (255,255,255), WIDTH//2+105, 315)
+        self.draw_text("ELMAS ÇERÇEVE", font_md, (0,200,255), WIDTH//2-90, 395); self.draw_button((WIDTH//2+40, 370, 130, 50), BTN_GREEN if self.gold>=5000 and self.frame_type!="DIAMOND" else (150,150,150), 15); self.draw_text("ALINDI" if self.frame_type=="DIAMOND" else "5000", font_md, (255,255,255), WIDTH//2+105, 395)
+        pygame.draw.rect(screen, (200,200,200), (WIDTH//2-200, 450, 400, 2)); self.draw_text("GÜÇLENDİRİCİLER", font_md, theme["text_dark"], WIDTH//2, 470)
+        self.draw_button((WIDTH//2-190, 500, 120, 45), BTN_PURPLE if self.gold>=300 else (150,150,150), 10); self.draw_text("ÇEKİÇ: 300", font_sm, (255,255,255), WIDTH//2-130, 522)
+        self.draw_button((WIDTH//2-60, 500, 120, 45), BTN_BLUE if self.gold>=300 else (150,150,150), 10); self.draw_text("YENİLE: 300", font_sm, (255,255,255), WIDTH//2, 522)
+        self.draw_button((WIDTH//2+70, 500, 120, 45), BTN_GREEN if self.gold>=400 else (150,150,150), 10); self.draw_text("+5 HAMLE: 400", font_sm, (255,255,255), WIDTH//2+130, 522)
+        self.draw_button((WIDTH//2-100, 650, 200, 55), BTN_RED, 20); self.draw_text("GERİ DÖN", font_md, (255,255,255), WIDTH//2, 677)
+
+    def draw_mistakes_log(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("BİLGİ DEFTERİ (YANLIŞLARIM)", font_title, BTN_RED, WIDTH//2, 80)
+        self.draw_panel((WIDTH//2-400, 150, 800, 450), 20, custom_bg=(255,255,255))
+        if not self.mistakes_log: self.draw_text("Harika! Hiç yanlışın yok.", font_lg, BTN_GREEN, WIDTH//2, 350)
+        else:
+            for i, m in enumerate(self.mistakes_log[-5:]):
+                y = 180 + i * 80
+                self.draw_text(f"Soru: {m['q']}", font_sm, TEXT_DARK, WIDTH//2-370, y, False); self.draw_text(f"Doğru Cevap: {m['a']}", font_md, BTN_GREEN, WIDTH//2-370, y+25, False)
+                pygame.draw.rect(screen, (220,220,220), (WIDTH//2-380, y+65, 760, 2))
+        self.draw_button((WIDTH//2-100, 620, 200, 55), BTN_RED, 20); self.draw_text("GERİ DÖN", font_md, (255,255,255), WIDTH//2, 647)
+
+    def draw_playing_ui(self, hide_q=False):
+        theme = self.get_theme(); screen.fill(theme["bg"])
+        rx = OFFSET_X + GRID_SIZE*TILE_SIZE + (WIDTH - (OFFSET_X + GRID_SIZE*TILE_SIZE)) // 2
+        self.draw_button((rx - 60, 40, 120, 50), BTN_RED, 15); self.draw_text("DURDUR", font_sm, (255,255,255), rx, 65)
+        
+        self.draw_panel((50, 40, 250, 250)); self.draw_avatar(self.player_avatar_idx, 175, 80, 40)
+        self.draw_text(self.player_name.upper(), font_lg, theme["text_dark"], 175, 150); self.draw_text(f"BÖLÜM: {self.level}", font_lg, BTN_PURPLE, 175, 200)
+        for i in range(3): pygame.draw.circle(screen, (250, 60, 60) if i < self.lives else (100, 100, 100), (135+i*40, 240), 12)
+        
+        self.draw_panel((50, 320, 250, 140), 20, custom_bg=(40,50,70)); self.draw_text("KALAN HAMLE", font_lg, (200,200,200), 175, 360)
+        self.draw_text(str(self.moves_left), font_title, (255,255,255) if self.moves_left > 5 else BTN_RED, 175, 420)
+
+        bot_y = HEIGHT - 80
+        self.draw_button((OFFSET_X, bot_y, 140, 50), BTN_YELLOW if self.hammer_mode else BTN_PURPLE, 15); self.draw_text(f"ÇEKİÇ ({self.inventory['hammer']})", font_sm, (255,255,255), OFFSET_X+70, bot_y+25)
+        self.draw_button((OFFSET_X + 160, bot_y, 140, 50), BTN_BLUE, 15); self.draw_text(f"YENİLE ({self.inventory['shuffle']})", font_sm, (255,255,255), OFFSET_X+230, bot_y+25)
+        self.draw_button((OFFSET_X + 320, bot_y, 140, 50), BTN_GREEN, 15); self.draw_text(f"+5 HAMLE ({self.inventory['add_moves']})", font_sm, (255,255,255), OFFSET_X+390, bot_y+25)
+
+        if self.combo > 1:
+            self.draw_panel((rx - 125, bot_y, 250, 50), 10, custom_bg=(40,50,70)); self.draw_text(f"KOMBO: x{self.combo}", font_lg, BTN_YELLOW, rx, bot_y+25)
+
+        self.draw_panel((50, 490, 250, 150), 10, custom_bg=(255,255,255)); self.draw_text("BİLGİ", font_md, BTN_YELLOW, 175, 520)
+        words, lines, current_line = self.current_fact.split(), [], ""
+        for word in words:
+            if font_sm.size(current_line + word)[0] < 220: current_line += word + " "
+            else: lines.append(current_line); current_line = word + " "
+        lines.append(current_line)
+        for i, line in enumerate(lines[:5]): self.draw_text(line, font_sm, TEXT_DARK, 175, 550+i*22)
+
+        self.draw_text(f"{self.player_name} Bilgi Labirenti ™", font_md, (150, 160, 180), rx, HEIGHT - 30)
+
+        self.draw_panel((OFFSET_X, 10, GRID_SIZE*TILE_SIZE, 70)); self.draw_text("GÖREVLERİ TAMAMLA!", font_lg, BTN_BLUE, OFFSET_X+(GRID_SIZE*TILE_SIZE)//2, 45)
+        hb = 10 + int(self.level * 2.5)
+        for i, tip in enumerate(self.selected_lessons):
+            y = 150 + i * 80; k = max(0, self.targets[tip]); o = k / hb if hb > 0 else 0
+            self.draw_text(f"{tip} Kalan: {k}", font_md, theme["text_dark"], rx, y - 20)
+            bar_w = 200
+            pygame.draw.rect(screen, theme["shadow"], (rx - bar_w//2, y, bar_w, 16), border_radius=8)
+            pygame.draw.rect(screen, self.lesson_colors.get(tip, BTN_BLUE), (rx - bar_w//2, y, int(bar_w * o), 16), border_radius=8)
+
+        if self.ast_timer > 0:
+            self.draw_panel((OFFSET_X+(GRID_SIZE*TILE_SIZE)//2 - 125, OFFSET_Y - 50, 250, 40), 10, custom_bg=(40,50,70))
+            self.draw_text(self.ast_msg, font_sm, (255,255,255), OFFSET_X+(GRID_SIZE*TILE_SIZE)//2, OFFSET_Y - 30)
+
+        for r in range(GRID_SIZE):
+            for c in range(GRID_SIZE):
+                if self.current_layout[r][c] != 0:
+                    tx, ty = OFFSET_X+c*TILE_SIZE, OFFSET_Y+r*TILE_SIZE
+                    pygame.draw.rect(screen, (30,40,60,100), (tx+2, ty+2, TILE_SIZE-4, TILE_SIZE-4), border_radius=12)
+                    if self.swap_anim and (r, c) in [(self.swap_anim["r1"], self.swap_anim["c1"]), (self.swap_anim["r2"], self.swap_anim["c2"])]:
+                        continue
+                    if self.grid[r][c]:
+                        self.draw_single_tile(self.grid[r][c], tx, ty, selected=(self.selected == (r,c)), offset=self.offsets[r][c])
+
+        if self.swap_anim:
+            r1, c1, r2, c2 = self.swap_anim["r1"], self.swap_anim["c1"], self.swap_anim["r2"], self.swap_anim["c2"]
+            p = self.swap_anim["progress"]
+            tip1, tip2 = self.grid[r1][c1], self.grid[r2][c2]
+            tx1 = OFFSET_X + c1 * TILE_SIZE + (c2 - c1) * TILE_SIZE * p
+            ty1 = OFFSET_Y + r1 * TILE_SIZE + (r2 - r1) * TILE_SIZE * p
+            tx2 = OFFSET_X + c2 * TILE_SIZE + (c1 - c2) * TILE_SIZE * p
+            ty2 = OFFSET_Y + r2 * TILE_SIZE + (r1 - r2) * TILE_SIZE * p
+            if tip1: self.draw_single_tile(tip1, tx1, ty1)
+            if tip2: self.draw_single_tile(tip2, tx2, ty2)
+
+        if self.state == "QUESTION" and not hide_q:
+            overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA); overlay.fill((0,0,0,220)); screen.blit(overlay, (0,0))
+            pw, ph = 800, 500
+            px, py = WIDTH//2 - pw//2, HEIGHT//2 - ph//2
+            self.draw_panel((px, py, pw, ph), custom_bg=(255,255,255))
+            self.draw_text(f"--- {self.current_q_tip} SORUSU ---", font_lg, BTN_BLUE, WIDTH//2, py + 35)
+            words = self.current_q.split(); lines = []; curr = ""
+            for w in words:
+                if font_md.size(curr + w)[0] < pw - 60: curr += w + " "
+                else: lines.append(curr); curr = w + " "
+            lines.append(curr)
+            for i, l in enumerate(lines): self.draw_text(l, font_md, TEXT_DARK, WIDTH//2, py + 80 + i*30)
+            jy = py + 160
+            self.draw_button((px+100, jy, 220, 50), BTN_PURPLE if self.gold>=200 and not self.joker_used else (150,150,150), 15); self.draw_text("50/50 (-200)", font_md, (255,255,255), px+210, jy+25)
+            self.draw_button((px+480, jy, 220, 50), BTN_PURPLE if self.gold>=500 else (150,150,150), 15); self.draw_text("PAS (-500)", font_md, (255,255,255), px+590, jy+25)
+            for i in range(3):
+                if self.current_opts[i] == " ": continue
+                oy = py + 240 + i*75
+                self.draw_button((px+100, oy, pw-200, 60), [BTN_YELLOW, BTN_BLUE, BTN_GREEN][i], 15); self.draw_text(self.current_opts[i], font_md, (255,255,255), WIDTH//2, oy+30)
+
+    def draw_ui(self):
+        if self.state == "PROFILE": self.draw_profile_setup()
+        elif self.state == "MENU": self.draw_menu()
+        elif self.state == "SPIN_WHEEL": self.draw_spin_wheel()
+        elif self.state == "TEACHER_PANEL": self.draw_teacher_panel()
+        elif self.state == "MARKET": self.draw_market()
+        elif self.state == "MISTAKES_LOG": self.draw_mistakes_log()
+        elif self.state == "WEEKLY_INTRO": self.draw_weekly_intro()
+        elif self.state == "WEEKLY_QUESTION": self.draw_weekly_question()
+        elif self.state == "WEEKLY_RESULT": self.draw_weekly_result()
+        elif self.state == "SCORES": self.draw_scores()
+        elif self.state == "LEVEL_SELECT": self.draw_level_select()
+        elif self.state == "SETTINGS": self.draw_settings()
+        elif self.state == "PAUSED": self.draw_paused()
+        elif self.state == "GAME_OVER": self.draw_game_over()
+        elif self.state == "LEVEL_CLEARED": self.draw_level_cleared()
+        elif self.state in ["PLAYING", "QUESTION"]: self.draw_playing_ui()
+
+    def draw_weekly_intro(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("HAFTALIK TEST", font_title, BTN_PURPLE, WIDTH//2, 150)
+        self.draw_button((WIDTH//2-150, 500, 300, 60), BTN_GREEN, 20); self.draw_text("BAŞLA", font_lg, (255,255,255), WIDTH//2, 530)
+    
+    def draw_weekly_question(self):
+        theme = self.get_theme(); screen.fill(theme["bg"]); self.draw_text(f"Soru {self.weekly_q_count+1}/5", font_lg, BTN_PURPLE, WIDTH//2, 100)
+        pw, ph = 800, 500
+        px, py = WIDTH//2 - pw//2, HEIGHT//2 - ph//2 + 50
+        self.draw_panel((px, py, pw, ph), custom_bg=(255,255,255))
+        self.draw_text(f"--- {self.current_q_tip} SORUSU ---", font_lg, BTN_BLUE, WIDTH//2, py + 35)
+        words = self.current_q.split(); lines = []; curr = ""
+        for w in words:
+            if font_md.size(curr + w)[0] < pw - 60: curr += w + " "
+            else: lines.append(curr); curr = w + " "
+        lines.append(curr)
+        for i, l in enumerate(lines): self.draw_text(l, font_md, TEXT_DARK, WIDTH//2, py + 80 + i*30)
+        for i in range(3):
+            oy = py + 200 + i*75
+            self.draw_button((px+100, oy, pw-200, 60), [BTN_YELLOW, BTN_BLUE, BTN_GREEN][i], 15)
+            self.draw_text(self.current_opts[i], font_md, (255,255,255), WIDTH//2, oy+30)
+
+    def draw_weekly_result(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("BİTTİ!", font_title, BTN_GREEN, WIDTH//2, 200); self.draw_text(f"Doğru: {self.weekly_correct}/5", font_lg, TEXT_DARK, WIDTH//2, 300)
+        self.draw_button((WIDTH//2-150, 550, 300, 60), BTN_BLUE, 20); self.draw_text("MENÜ", font_lg, (255,255,255), WIDTH//2, 580)
+
+    def draw_scores(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("İSTATİSTİKLER VE ROZETLER", font_title, theme["text_dark"], WIDTH//2, 80)
+        self.draw_panel((WIDTH//2-250, 150, 500, 420)); self.draw_avatar(self.player_avatar_idx, WIDTH//2, 210, 40); self.draw_text(self.player_name.upper(), font_lg, theme["text_dark"], WIDTH//2, 280)
+        self.draw_text(f"Toplam Altın: {self.gold}", font_md, TEXT_ORANGE, WIDTH//2, 330); self.draw_text(f"En Yüksek Bölüm: {self.unlocked_levels}", font_md, BTN_PURPLE, WIDTH//2, 370)
+        pygame.draw.rect(screen, (200,200,200), (WIDTH//2-200, 410, 400, 2)); self.draw_text("ROZETLER", font_md, TEXT_DARK, WIDTH//2, 440)
+        if self.gold >= 5000: self.draw_text("ZENGİN", font_lg, BTN_YELLOW, WIDTH//2-100, 490)
+        else: self.draw_text("Zengin", font_md, (150,150,150), WIDTH//2-100, 490)
+        if self.unlocked_levels >= 10: self.draw_text("BİLGİN", font_lg, BTN_GREEN, WIDTH//2+100, 490)
+        else: self.draw_text("Bilgin", font_md, (150,150,150), WIDTH//2+100, 490)
+        self.draw_button((WIDTH//2-100, 620, 200, 55), BTN_RED, 20); self.draw_text("GERİ", font_md, (255,255,255), WIDTH//2, 647)
+
+    def draw_level_select(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"]); self.draw_text("BÖLÜMLER", font_title, theme["text_dark"], WIDTH//2, 80)
+        for i in range(50):
+            bx, by = WIDTH//2-300+(i%10)*70, 180+(i//10)*70
+            self.draw_button((bx, by, 60, 60), BTN_BLUE if i<self.unlocked_levels else (150,150,160), 15)
+            if i < self.unlocked_levels: self.draw_text(str(i+1), font_md, (255,255,255), bx+30, by+30)
+            elif i == self.unlocked_levels:
+                self.draw_text("X", font_sm, (100,100,100), bx+30, by+20); self.draw_text("Yakında", font_xs, (200,50,50), bx+30, by+40) 
+            else: self.draw_text("X", font_sm, (100,100,100), bx+30, by+30)
+        self.draw_button((WIDTH//2-100, 620, 200, 55), BTN_RED, 20); self.draw_text("GERİ", font_md, (255,255,255), WIDTH//2, 647)
+
+    def draw_settings(self):
+        theme = self.get_theme(); self.draw_menu(); overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA); overlay.fill((0,0,0,150) if self.dark_mode else (255,255,255,180)); screen.blit(overlay, (0,0))
+        
+        self.draw_panel((WIDTH//2-350, 100, 700, 590), 25, custom_bg=(240,245,255) if not self.dark_mode else (35,40,50))
+        self.draw_text("SES AYARLARI", font_title, TEXT_DARK if not self.dark_mode else (255,255,255), WIDTH//2, 140)
+        
+        sx, sw = WIDTH//2 + 30, 250
+        tx = WIDTH//2 - 300
+        
+        # 1. Genel Ses
+        self.draw_panel((WIDTH//2-320, 180, 640, 75), 15, custom_bg=(255,255,255) if not self.dark_mode else (45,50,60), shadow=False)
+        self.draw_text("GENEL SES", font_md, TEXT_DARK if not self.dark_mode else (255,255,255), tx, 205, center=False)
+        self.draw_text("Genel oyun ses seviyesini ayarlar", font_xs, (100,110,130), tx, 230, center=False)
+        pygame.draw.rect(screen, (220,220,230), (sx, 215, sw, 10), border_radius=5)
+        pygame.draw.rect(screen, (30,200,200), (sx, 215, int(sw*self.gen_vol), 10), border_radius=5)
+        pygame.draw.circle(screen, (20,180,180), (sx + int(sw*self.gen_vol), 220), 12)
+
+        # 2. Müzik
+        self.draw_panel((WIDTH//2-320, 265, 640, 75), 15, custom_bg=(255,255,255) if not self.dark_mode else (45,50,60), shadow=False)
+        self.draw_text("MÜZİK", font_md, TEXT_DARK if not self.dark_mode else (255,255,255), tx, 290, center=False)
+        self.draw_text("Arka plan müziği sesini kontrol eder", font_xs, (100,110,130), tx, 315, center=False)
+        pygame.draw.rect(screen, (220,220,230), (sx, 300, sw, 10), border_radius=5)
+        pygame.draw.rect(screen, (30,200,200), (sx, 300, int(sw*self.music_vol), 10), border_radius=5)
+        pygame.draw.circle(screen, (20,180,180), (sx + int(sw*self.music_vol), 305), 12)
+
+        # 3. Tıklama
+        self.draw_panel((WIDTH//2-320, 350, 640, 75), 15, custom_bg=(255,255,255) if not self.dark_mode else (45,50,60), shadow=False)
+        self.draw_text("TIKLAMA SESİ", font_md, TEXT_DARK if not self.dark_mode else (255,255,255), tx, 375, center=False)
+        self.draw_text("Buton ve menü tıklama seslerini açar/kapatır", font_xs, (100,110,130), tx, 400, center=False)
+        self.draw_text("Açık" if self.sfx_click else "Kapalı", font_sm, TEXT_DARK if not self.dark_mode else (255,255,255), sx-40, 387, center=False)
+        pygame.draw.rect(screen, (30,200,200) if self.sfx_click else (180,180,180), (sx+40, 368, 70, 40), border_radius=20)
+        pygame.draw.circle(screen, (255,255,255), (sx+90 if self.sfx_click else sx+60, 388), 16)
+
+        # 4. Efekt
+        self.draw_panel((WIDTH//2-320, 435, 640, 75), 15, custom_bg=(255,255,255) if not self.dark_mode else (45,50,60), shadow=False)
+        self.draw_text("EFEKT SESLERİ (PATLAMA)", font_md, TEXT_DARK if not self.dark_mode else (255,255,255), tx, 460, center=False)
+        self.draw_text("Oyun içi özel efekt ve patlama seslerini ayarlar", font_xs, (100,110,130), tx, 485, center=False)
+        self.draw_text("Açık" if self.sfx_effects else "Kapalı", font_sm, TEXT_DARK if not self.dark_mode else (255,255,255), sx-40, 472, center=False)
+        pygame.draw.rect(screen, (30,200,200) if self.sfx_effects else (180,180,180), (sx+40, 453, 70, 40), border_radius=20)
+        pygame.draw.circle(screen, (255,255,255), (sx+90 if self.sfx_effects else sx+60, 473), 16)
+
+        # 5. Karanlık Tema
+        self.draw_panel((WIDTH//2-320, 520, 640, 75), 15, custom_bg=(255,255,255) if not self.dark_mode else (45,50,60), shadow=False)
+        self.draw_text("KARANLIK TEMA", font_md, TEXT_DARK if not self.dark_mode else (255,255,255), tx, 545, center=False)
+        self.draw_text("Oyunun genel renk temasını koyulaştırır", font_xs, (100,110,130), tx, 570, center=False)
+        self.draw_text("Açık" if self.dark_mode else "Kapalı", font_sm, TEXT_DARK if not self.dark_mode else (255,255,255), sx-40, 557, center=False)
+        pygame.draw.rect(screen, (30,200,200) if self.dark_mode else (180,180,180), (sx+40, 538, 70, 40), border_radius=20)
+        pygame.draw.circle(screen, (255,255,255), (sx+90 if self.dark_mode else sx+60, 558), 16)
+
+        self.draw_button((WIDTH//2-125, 615, 250, 55), BTN_GREEN, 20); self.draw_text("KAYDET & ÇIK", font_lg, (255,255,255), WIDTH//2, 642)
+
+    def draw_paused(self):
+        self.draw_playing_ui(True); overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA); overlay.fill((0,0,0,200)); screen.blit(overlay, (0,0))
+        self.draw_text("DURDURULDU", font_title, (255,255,255), WIDTH//2, 250); self.draw_button((WIDTH//2-100, 350, 200, 55), BTN_GREEN, 20); self.draw_text("DEVAM", font_md, (255,255,255), WIDTH//2, 377)
+        self.draw_button((WIDTH//2-100, 430, 200, 55), BTN_RED, 20); self.draw_text("MENÜ", font_md, (255,255,255), WIDTH//2, 457)
+
+    def draw_game_over(self):
+        self.draw_playing_ui(True); overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA); overlay.fill((0,0,0,200)); screen.blit(overlay, (0,0))
+        self.draw_text("OYUN BİTTİ!", font_title, BTN_RED, WIDTH//2, 300); self.draw_text(f"Hamle Tükendi / Can Bitti", font_lg, (255,255,255), WIDTH//2, 370)
+        self.draw_button((WIDTH//2-100, 450, 200, 55), BTN_BLUE, 20); self.draw_text("MENÜ", font_md, (255,255,255), WIDTH//2, 477)
+
+    def draw_level_cleared(self):
+        self.draw_playing_ui(True); overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA); overlay.fill((255,255,255,220) if not self.dark_mode else (0,0,0,220)); screen.blit(overlay, (0,0))
+        for p in self.particles:
+            p[0] += p[2]; p[1] += p[3]; p[3] += 0.2
+            pygame.draw.circle(screen, p[4], (int(p[0]), int(p[1])), 6)
+        self.draw_text("TEBRİKLER!", font_title, BTN_GREEN, WIDTH//2, 280); self.draw_button((WIDTH//2-210, 450, 200, 55), BTN_BLUE, 20); self.draw_text("BÖLÜMLER", font_md, (255,255,255), WIDTH//2-110, 477); self.draw_button((WIDTH//2+10, 450, 200, 55), BTN_GREEN, 20); self.draw_text("SONRAKİ", font_md, (255,255,255), WIDTH//2+110, 477)
+
+    def draw_profile_setup(self):
+        theme = self.get_theme(); screen.fill(theme["menu_bg"])
+        self.draw_text("PROFİLİNİ GÜNCELLE" if hasattr(self, 'player_name') and self.player_name else "PROFİLİNİ OLUŞTUR", font_title, theme["text_dark"], WIDTH//2, 40)
+        self.draw_text("Adın:", font_lg, theme["text_dark"], WIDTH//2-200, 115)
+        pygame.draw.rect(screen, (255,255,255), (WIDTH//2-100, 95, 250, 40), border_radius=10); pygame.draw.rect(screen, theme["text_dark"], (WIDTH//2-100, 95, 250, 40), 3, border_radius=10)
+        screen.blit(font_lg.render(self.player_name + ("|" if self.input_active else ""), True, TEXT_DARK), (WIDTH//2-90, 100))
+        
+        self.draw_text("Sınıfını Seç (1-12):", font_lg, theme["text_dark"], WIDTH//2, 160)
+        for i in range(12):
+            bx, by = WIDTH//2-250+(i%6)*85, 180+(i//6)*50
+            self.draw_button((bx, by, 65, 40), BTN_GREEN if self.player_class == str(i+1) else (150,150,150), 10); self.draw_text(str(i+1), font_md, (255,255,255), bx+32, by+20)
+        
+        self.draw_text("Oynamak İstediğin 4 Dersi Seç:", font_lg, theme["text_dark"], WIDTH//2, 300)
+        is_high_school = int(self.player_class) >= 9
+        avail_les = ["MAT", "FİZ", "KİM", "BİY", "EDE", "TAR", "COĞ", "FEL"] if is_high_school else ["MAT", "FEN", "TÜR", "SOS", "İNG", "DİN"]
+        for i, les in enumerate(avail_les):
+            bx, by = WIDTH//2-250+(i%4)*130, 320+(i//4)*50
+            is_sel = les in self.selected_lessons
+            self.draw_button((bx, by, 110, 40), self.lesson_colors.get(les, BTN_BLUE) if is_sel else (150,150,150), 10)
+            self.draw_text(les, font_sm, (255,255,255), bx+55, by+20)
+
+        self.draw_text("Karakterini Seç (Erkek/Kız):", font_lg, theme["text_dark"], WIDTH//2, 440)
+        for i in range(2):
+            cx, cy = (WIDTH//2 - 100) + (i*200), 520
+            self.draw_avatar(i, cx, cy, 40)
+            if self.player_avatar_idx == i: pygame.draw.circle(screen, BTN_YELLOW, (cx, cy), 45, 4)
+        
+        btn_c = BTN_BLUE if len(self.selected_lessons) == 4 else (150,150,150)
+        self.draw_button((WIDTH//2-150, 620, 300, 60), btn_c, 20); 
+        self.draw_text("KAYDET", font_lg, (255,255,255), WIDTH//2, 650)
+        if len(self.selected_lessons) != 4: self.draw_text("Lütfen tam 4 ders seçin!", font_sm, BTN_RED, WIDTH//2, 695)
+
+    def update(self):
+        if self.state == "SPIN_WHEEL" and self.wheel_ticks > 0:
+            self.wheel_ticks -= 1
+            if self.wheel_ticks % 5 == 0: self.wheel_idx = (self.wheel_idx + 1) % len(self.wheel_items)
+        if self.ast_timer > 0: self.ast_timer -= 1
+        if self.combo_timer > 0:
+            self.combo_timer -= 1
+            if self.combo_timer == 0: self.combo = 1
+            
+        if self.state == "PLAYING":
+            if self.swap_anim:
+                self.swap_anim["progress"] += 0.15 
+                if self.swap_anim["progress"] >= 1.0:
+                    r1, c1 = self.swap_anim["r1"], self.swap_anim["c1"]
+                    r2, c2 = self.swap_anim["r2"], self.swap_anim["c2"]
+                    self.grid[r1][c1], self.grid[r2][c2] = self.grid[r2][c2], self.grid[r1][c1]
+                    
+                    if not self.swap_anim["reverse"]:
+                        if not self.remove_matches():
+                            self.swap_anim = {"r1": r1, "c1": c1, "r2": r2, "c2": c2, "progress": 0.0, "reverse": True}
+                            self.moves_left -= 1
+                        else:
+                            self.moves_left -= 1
+                            self.swap_anim = None
+                    else:
+                        self.swap_anim = None
+                return 
+
+            moving = False
+            fall_sp = self.get_fall_speed()
+            for r in range(GRID_SIZE):
+                for c in range(GRID_SIZE):
+                    if self.offsets[r][c] > 0:
+                        self.offsets[r][c] = max(0, self.offsets[r][c] - fall_sp)
+                        moving = True
+            if not moving:
+                if not self.remove_matches(): 
+                    self.fill_grid()
+                    if not any(any(o > 0 for o in row) for row in self.offsets):
+                        if self.moves_left <= 0 and any(t > 0 for t in self.targets.values()):
+                            self.lives -= 1; self.consecutive_wins = 0; self.level_fails[str(self.level)] = self.level_fails.get(str(self.level), 0) + 1
+                            self.play_sfx("lose")
+                            self.set_state("GAME_OVER")
+
+game = Game()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: game.save_game(); pygame.quit(); sys.exit()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: game.save_game(); pygame.quit(); sys.exit()
+        game.handle_event(event) 
+    game.update(); game.draw_ui()
+    if game.shake_timer > 0: sx, sy = random.randint(-4, 4), random.randint(-4, 4); game.shake_timer -= 1
+    else: sx, sy = 0, 0
+    
+    display_screen.blit(pygame.transform.smoothscale(screen, (MON_W, MON_H)), (0, 0))
+    pygame.display.flip(); clock.tick(60)

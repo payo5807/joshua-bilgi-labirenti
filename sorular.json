@@ -1,0 +1,1626 @@
+{
+    "1": {
+        "MAT": [
+            {
+                "q": "5 + 3 işleminin sonucu kaçtır?",
+                "a": "8",
+                "s": [
+                    "7",
+                    "8",
+                    "9"
+                ]
+            },
+            {
+                "q": "10'dan 4 çıkarsa kaç kalır?",
+                "a": "6",
+                "s": [
+                    "5",
+                    "6",
+                    "7"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Gündüzleri gökyüzünü aydınlatan ve ısıtan yıldız hangisidir?",
+                "a": "Güneş",
+                "s": [
+                    "Ay",
+                    "Güneş",
+                    "Dünya"
+                ]
+            },
+            {
+                "q": "Hangi organımızla koku alırız?",
+                "a": "Burun",
+                "s": [
+                    "Göz",
+                    "Burun",
+                    "Kulak"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Alfabemizin ilk harfi nedir?",
+                "a": "A",
+                "s": [
+                    "A",
+                    "B",
+                    "C"
+                ]
+            },
+            {
+                "q": "'Kırmızı' kelimesinin eş anlamlısı nedir?",
+                "a": "Al",
+                "s": [
+                    "Ak",
+                    "Kara",
+                    "Al"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Türkiye'nin başkenti neresidir?",
+                "a": "Ankara",
+                "s": [
+                    "İstanbul",
+                    "Ankara",
+                    "İzmir"
+                ]
+            },
+            {
+                "q": "İstiklal Marşı'mızın şairi kimdir?",
+                "a": "Mehmet Akif Ersoy",
+                "s": [
+                    "Atatürk",
+                    "Mehmet Akif Ersoy",
+                    "Cemil Meriç"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'Kedi' kelimesinin İngilizcesi nedir?",
+                "a": "Cat",
+                "s": [
+                    "Dog",
+                    "Cat",
+                    "Bird"
+                ]
+            },
+            {
+                "q": "'Kırmızı' rengin İngilizcesi nedir?",
+                "a": "Red",
+                "s": [
+                    "Blue",
+                    "Red",
+                    "Green"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Yemeğe başlarken ne söyleriz?",
+                "a": "Bismillah",
+                "s": [
+                    "Elhamdülillah",
+                    "Bismillah",
+                    "Amin"
+                ]
+            },
+            {
+                "q": "Dinimizin adı nedir?",
+                "a": "İslam",
+                "s": [
+                    "İslam",
+                    "Hristiyanlık",
+                    "Musevilik"
+                ]
+            }
+        ]
+    },
+    "2": {
+        "MAT": [
+            {
+                "q": "12 sayısının bir düzine olması için kaç eklemeliyiz?",
+                "a": "0",
+                "s": [
+                    "1",
+                    "0",
+                    "2"
+                ]
+            },
+            {
+                "q": "20'den geriye doğru 2'şer sayarken 18'den sonra ne gelir?",
+                "a": "16",
+                "s": [
+                    "15",
+                    "16",
+                    "17"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Aşağıdakilerden hangisi canlı bir varlıktır?",
+                "a": "Ağaç",
+                "s": [
+                    "Taş",
+                    "Ağaç",
+                    "Toprak"
+                ]
+            },
+            {
+                "q": "Hangi mevsimde kar yağar?",
+                "a": "Kış",
+                "s": [
+                    "Yaz",
+                    "Kış",
+                    "İlkbahar"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Hangi kelimenin zıt anlamlısı 'Sıcak'tır?",
+                "a": "Soğuk",
+                "s": [
+                    "Ilık",
+                    "Soğuk",
+                    "Serin"
+                ]
+            },
+            {
+                "q": "Özel isimler nasıl harfle başlar?",
+                "a": "Büyük",
+                "s": [
+                    "Küçük",
+                    "Büyük",
+                    "Fark etmez"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Atatürk nerede doğmuştur?",
+                "a": "Selanik",
+                "s": [
+                    "İstanbul",
+                    "Ankara",
+                    "Selanik"
+                ]
+            },
+            {
+                "q": "Hangi gün Cumhuriyet Bayramı kutlanır?",
+                "a": "29 Ekim",
+                "s": [
+                    "23 Nisan",
+                    "29 Ekim",
+                    "19 Mayıs"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'Book' kelimesinin Türkçesi nedir?",
+                "a": "Kitap",
+                "s": [
+                    "Defter",
+                    "Kalem",
+                    "Kitap"
+                ]
+            },
+            {
+                "q": "'One, Two, Three' sayılarından sonra ne gelir?",
+                "a": "Four",
+                "s": [
+                    "Five",
+                    "Four",
+                    "Six"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Peygamberimizin (s.a.v) adı nedir?",
+                "a": "Muhammed",
+                "s": [
+                    "İbrahim",
+                    "Musa",
+                    "Muhammed"
+                ]
+            },
+            {
+                "q": "Kutsal kitabımızın adı nedir?",
+                "a": "Kur'an-ı Kerim",
+                "s": [
+                    "Tevrat",
+                    "İncil",
+                    "Kur'an-ı Kerim"
+                ]
+            }
+        ]
+    },
+    "3": {
+        "MAT": [
+            {
+                "q": "En küçük 3 basamaklı doğal sayı kaçtır?",
+                "a": "100",
+                "s": [
+                    "101",
+                    "100",
+                    "999"
+                ]
+            },
+            {
+                "q": "5 x 4 işleminin sonucu kaçtır?",
+                "a": "20",
+                "s": [
+                    "15",
+                    "20",
+                    "25"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Dünya'nın kendi etrafında dönmesiyle ne oluşur?",
+                "a": "Gece ve Gündüz",
+                "s": [
+                    "Mevsimler",
+                    "Gece ve Gündüz",
+                    "Aylar"
+                ]
+            },
+            {
+                "q": "Aşağıdakilerden hangisi ışık kaynağıdır?",
+                "a": "Güneş",
+                "s": [
+                    "Ayna",
+                    "Güneş",
+                    "Ay"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "'Siyah' kelimesinin eş anlamlısı nedir?",
+                "a": "Kara",
+                "s": [
+                    "Ak",
+                    "Kara",
+                    "Kızıl"
+                ]
+            },
+            {
+                "q": "Soru cümlelerinin sonuna hangi işaret konur?",
+                "a": "Soru İşareti",
+                "s": [
+                    "Nokta",
+                    "Virgül",
+                    "Soru İşareti"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Haritalarda sular hangi renkle gösterilir?",
+                "a": "Mavi",
+                "s": [
+                    "Yeşil",
+                    "Mavi",
+                    "Kahverengi"
+                ]
+            },
+            {
+                "q": "Yön bulmak için hangi aleti kullanırız?",
+                "a": "Pusula",
+                "s": [
+                    "Termometre",
+                    "Pusula",
+                    "Barometre"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'Yellow' hangi renktir?",
+                "a": "Sarı",
+                "s": [
+                    "Kırmızı",
+                    "Sarı",
+                    "Yeşil"
+                ]
+            },
+            {
+                "q": "'Hello' ne demektir?",
+                "a": "Merhaba",
+                "s": [
+                    "Güle güle",
+                    "Nasılsın",
+                    "Merhaba"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "İlk insan ve ilk peygamber kimdir?",
+                "a": "Hz. Adem",
+                "s": [
+                    "Hz. Nuh",
+                    "Hz. İsa",
+                    "Hz. Adem"
+                ]
+            },
+            {
+                "q": "Namaz kılınan ibadet yerinin adı nedir?",
+                "a": "Cami",
+                "s": [
+                    "Mescit",
+                    "Okul",
+                    "Cami"
+                ]
+            }
+        ]
+    },
+    "4": {
+        "MAT": [
+            {
+                "q": "Bir dik açının ölçüsü kaç derecedir?",
+                "a": "90",
+                "s": [
+                    "45",
+                    "90",
+                    "180"
+                ]
+            },
+            {
+                "q": "1 kg kaç gramdır?",
+                "a": "1000",
+                "s": [
+                    "100",
+                    "1000",
+                    "10000"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Yer kabuğunun yapısında ne bulunur?",
+                "a": "Kayaçlar",
+                "s": [
+                    "Su",
+                    "Kayaçlar",
+                    "Hava"
+                ]
+            },
+            {
+                "q": "Mıknatıs aşağıdakilerden hangisini çeker?",
+                "a": "Demir",
+                "s": [
+                    "Tahta",
+                    "Demir",
+                    "Plastik"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Gerçekte olmayan, hayal ürünü olan metin türüne ne denir?",
+                "a": "Masal",
+                "s": [
+                    "Haber",
+                    "Masal",
+                    "Makale"
+                ]
+            },
+            {
+                "q": "'Uzak' kelimesinin zıt anlamlısı nedir?",
+                "a": "Yakın",
+                "s": [
+                    "Irak",
+                    "Yakın",
+                    "Kenar"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "TBMM ne zaman açılmıştır?",
+                "a": "23 Nisan 1920",
+                "s": [
+                    "29 Ekim 1923",
+                    "23 Nisan 1920",
+                    "19 Mayıs 1919"
+                ]
+            },
+            {
+                "q": "Fiziki haritada ovalar hangi renkle gösterilir?",
+                "a": "Yeşil",
+                "s": [
+                    "Sarı",
+                    "Yeşil",
+                    "Kahverengi"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'I am playing tennis' ne demektir?",
+                "a": "Ben tenis oynuyorum",
+                "s": [
+                    "Ben tenis oynarım",
+                    "Ben tenis oynuyorum",
+                    "Tenis oynayacağım"
+                ]
+            },
+            {
+                "q": "'Apple' nedir?",
+                "a": "Elma",
+                "s": [
+                    "Portakal",
+                    "Muz",
+                    "Elma"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "İslam'ın şartı kaçtır?",
+                "a": "5",
+                "s": [
+                    "4",
+                    "5",
+                    "6"
+                ]
+            },
+            {
+                "q": "Ramazan ayında tutulan oruç kimlere farzdır?",
+                "a": "Ergenlik çağına girmiş sağlıklı Müslümanlara",
+                "s": [
+                    "Sadece yaşlılara",
+                    "Ergenlik çağına girmiş sağlıklı Müslümanlara",
+                    "Çocuklara"
+                ]
+            }
+        ]
+    },
+    "5": {
+        "MAT": [
+            {
+                "q": "5³ (Beşin küpü) işleminin sonucu kaçtır?",
+                "a": "125",
+                "s": [
+                    "15",
+                    "25",
+                    "125"
+                ]
+            },
+            {
+                "q": "Payı paydasından küçük olan kesirlere ne denir?",
+                "a": "Basit Kesir",
+                "s": [
+                    "Bileşik Kesir",
+                    "Tam Sayılı Kesir",
+                    "Basit Kesir"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Ay'ın Dünya etrafındaki dolanımını tamamlaması yaklaşık ne kadar sürer?",
+                "a": "27 gün",
+                "s": [
+                    "1 Yıl",
+                    "27 gün",
+                    "24 Saat"
+                ]
+            },
+            {
+                "q": "Dinometre neyi ölçer?",
+                "a": "Kuvvet",
+                "s": [
+                    "Kütle",
+                    "Sıcaklık",
+                    "Kuvvet"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Aynı anlama gelen kelimelere ne denir?",
+                "a": "Eş Anlamlı",
+                "s": [
+                    "Zıt Anlamlı",
+                    "Eş Sesli",
+                    "Eş Anlamlı"
+                ]
+            },
+            {
+                "q": "'Gözüme girdi' deyiminde hangi söz sanatı vardır?",
+                "a": "Mecaz",
+                "s": [
+                    "Mecaz",
+                    "Gerçek Anlam",
+                    "Terim Anlam"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Tarihte parayı ilk bulan medeniyet kimdir?",
+                "a": "Lidyalılar",
+                "s": [
+                    "Sümerler",
+                    "Urartular",
+                    "Lidyalılar"
+                ]
+            },
+            {
+                "q": "Ülkemizin en kalabalık bölgesi hangisidir?",
+                "a": "Marmara",
+                "s": [
+                    "İç Anadolu",
+                    "Ege",
+                    "Marmara"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "Saat 3'ü çeyrek geçiyor nasıl söylenir?",
+                "a": "A quarter past three",
+                "s": [
+                    "A quarter to three",
+                    "Half past three",
+                    "A quarter past three"
+                ]
+            },
+            {
+                "q": "'Library' neresidir?",
+                "a": "Kütüphane",
+                "s": [
+                    "Okul",
+                    "Kütüphane",
+                    "Hastane"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Allah'ın her şeyi bilmesi sıfatına ne denir?",
+                "a": "İlim",
+                "s": [
+                    "Semi",
+                    "İlim",
+                    "Kudret"
+                ]
+            },
+            {
+                "q": "Kur'an-ı Kerim'in en uzun suresi hangisidir?",
+                "a": "Bakara Suresi",
+                "s": [
+                    "Fatiha Suresi",
+                    "Yasin Suresi",
+                    "Bakara Suresi"
+                ]
+            }
+        ]
+    },
+    "6": {
+        "MAT": [
+            {
+                "q": "En küçük asal sayı kaçtır?",
+                "a": "2",
+                "s": [
+                    "1",
+                    "2",
+                    "3"
+                ]
+            },
+            {
+                "q": "18 ve 24 sayılarının EBOB'u kaçtır?",
+                "a": "6",
+                "s": [
+                    "4",
+                    "6",
+                    "8"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Güneş sisteminin en büyük gezegeni hangisidir?",
+                "a": "Jüpiter",
+                "s": [
+                    "Mars",
+                    "Satürn",
+                    "Jüpiter"
+                ]
+            },
+            {
+                "q": "Vücudumuzda kanı pompalayan organımız hangisidir?",
+                "a": "Kalp",
+                "s": [
+                    "Akciğer",
+                    "Mide",
+                    "Kalp"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "İki zıt kavramın bir arada kullanılmasına ne denir?",
+                "a": "Tezat",
+                "s": [
+                    "Teşbih",
+                    "Tezat",
+                    "Mecaz"
+                ]
+            },
+            {
+                "q": "Öznel anlatım nedir?",
+                "a": "Kişiden kişiye değişen fikirlerdir",
+                "s": [
+                    "Kanıtlanabilir gerçeklerdir",
+                    "Bilimsel verilerdir",
+                    "Kişiden kişiye değişen fikirlerdir"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Tarihte bilinen ilk Türk devleti hangisidir?",
+                "a": "Asya Hun Devleti",
+                "s": [
+                    "Göktürkler",
+                    "Uygurlar",
+                    "Asya Hun Devleti"
+                ]
+            },
+            {
+                "q": "Kavimler Göçü'nün sonucunda hangi çağ başlamıştır?",
+                "a": "Orta Çağ",
+                "s": [
+                    "İlk Çağ",
+                    "Orta Çağ",
+                    "Yeni Çağ"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'Yesterday' kelimesi hangi zamana aittir?",
+                "a": "Past Tense (Geçmiş Zaman)",
+                "s": [
+                    "Future Tense",
+                    "Present Tense",
+                    "Past Tense (Geçmiş Zaman)"
+                ]
+            },
+            {
+                "q": "'Delicious' kelimesinin anlamı nedir?",
+                "a": "Lezzetli",
+                "s": [
+                    "Kötü",
+                    "Lezzetli",
+                    "Acı"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Peygamberlerin Allah'tan aldıkları mesajları insanlara ulaştırmasına ne denir?",
+                "a": "Tebliğ",
+                "s": [
+                    "Vahiy",
+                    "Mucize",
+                    "Tebliğ"
+                ]
+            },
+            {
+                "q": "İlahi kitaplardan Zebur hangi peygambere indirilmiştir?",
+                "a": "Hz. Davud",
+                "s": [
+                    "Hz. Musa",
+                    "Hz. İsa",
+                    "Hz. Davud"
+                ]
+            }
+        ]
+    },
+    "7": {
+        "MAT": [
+            {
+                "q": "(-5) - (-8) işleminin sonucu kaçtır?",
+                "a": "+3",
+                "s": [
+                    "-13",
+                    "+3",
+                    "-3"
+                ]
+            },
+            {
+                "q": "Alan ölçüsü temel birimi nedir?",
+                "a": "Metrekare",
+                "s": [
+                    "Metre",
+                    "Metreküp",
+                    "Metrekare"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "Mitoz bölünme sonucunda bir hücreden kaç hücre oluşur?",
+                "a": "2",
+                "s": [
+                    "2",
+                    "4",
+                    "8"
+                ]
+            },
+            {
+                "q": "Kinetik enerji neye bağlıdır?",
+                "a": "Kütle ve Hız",
+                "s": [
+                    "Sadece kütle",
+                    "Yükseklik",
+                    "Kütle ve Hız"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Haber kiplerinden '-ecek/-acak' hangi zamanı bildirir?",
+                "a": "Gelecek Zaman",
+                "s": [
+                    "Şimdiki Zaman",
+                    "Geniş Zaman",
+                    "Gelecek Zaman"
+                ]
+            },
+            {
+                "q": "Bir durumu olduğundan çok daha büyük gösterme sanatına ne denir?",
+                "a": "Abartma (Mübalağa)",
+                "s": [
+                    "Kişileştirme",
+                    "Benzetme",
+                    "Abartma (Mübalağa)"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Osmanlı Devleti'nin kurucusu kimdir?",
+                "a": "Osman Bey",
+                "s": [
+                    "Ertuğrul Gazi",
+                    "Osman Bey",
+                    "Orhan Bey"
+                ]
+            },
+            {
+                "q": "Türkiye'de nüfus yoğunluğu en fazla olan bölge neresidir?",
+                "a": "Marmara Bölgesi",
+                "s": [
+                    "Ege Bölgesi",
+                    "İç Anadolu",
+                    "Marmara Bölgesi"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "Superlative formda 'Good' kelimesi nasıl değişir?",
+                "a": "Best",
+                "s": [
+                    "Better",
+                    "Goodest",
+                    "Best"
+                ]
+            },
+            {
+                "q": "'I prefer reading to sleeping' cümlesinin anlamı nedir?",
+                "a": "Okumayı uyumaya tercih ederim",
+                "s": [
+                    "Uyumayı okumaya tercih ederim",
+                    "Okumayı uyumaya tercih ederim",
+                    "Ben okuyorum"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Meleklerin özelliklerinden biri hangisidir?",
+                "a": "Nurdan yaratılmışlardır",
+                "s": [
+                    "Topraktan yaratılmışlardır",
+                    "Ateşten yaratılmışlardır",
+                    "Nurdan yaratılmışlardır"
+                ]
+            },
+            {
+                "q": "Kader ne demektir?",
+                "a": "Allah'ın her şeyi önceden bilmesi ve planlaması",
+                "s": [
+                    "Tesadüf",
+                    "Allah'ın her şeyi önceden bilmesi ve planlaması",
+                    "Sadece insanın seçimi"
+                ]
+            }
+        ]
+    },
+    "8": {
+        "MAT": [
+            {
+                "q": "√144 ifadesinin eşiti kaçtır?",
+                "a": "12",
+                "s": [
+                    "12",
+                    "14",
+                    "16"
+                ]
+            },
+            {
+                "q": "Eğim nedir?",
+                "a": "Dikey uzunluğun yatay uzunluğa oranı",
+                "s": [
+                    "Yatay / Dikey",
+                    "Dikey uzunluğun yatay uzunluğa oranı",
+                    "X ve Y'nin toplamı"
+                ]
+            }
+        ],
+        "FEN": [
+            {
+                "q": "DNA'nın yapı birimine ne denir?",
+                "a": "Nükleotit",
+                "s": [
+                    "Gen",
+                    "Kromozom",
+                    "Nükleotit"
+                ]
+            },
+            {
+                "q": "Asitlerin pH değeri hangi aralıktadır?",
+                "a": "0 - 7",
+                "s": [
+                    "7 - 14",
+                    "0 - 7",
+                    "Sadece 7"
+                ]
+            }
+        ],
+        "TÜR": [
+            {
+                "q": "Fiilimsi (eylemsi) ekleri hangi sözcüklere gelir?",
+                "a": "Fiillere",
+                "s": [
+                    "İsimlere",
+                    "Fiillere",
+                    "Zarflara"
+                ]
+            },
+            {
+                "q": "Yüklemi isim olan cümlelere ne denir?",
+                "a": "İsim Cümlesi",
+                "s": [
+                    "Fiil Cümlesi",
+                    "Devrik Cümle",
+                    "İsim Cümlesi"
+                ]
+            }
+        ],
+        "SOS": [
+            {
+                "q": "Mustafa Kemal'in doğduğu şehir neresidir?",
+                "a": "Selanik",
+                "s": [
+                    "Manastır",
+                    "Sofya",
+                    "Selanik"
+                ]
+            },
+            {
+                "q": "Milli Mücadele'de doğu cephesindeki komutanımız kimdir?",
+                "a": "Kazım Karabekir",
+                "s": [
+                    "Kazım Karabekir",
+                    "Ali Fuat Cebesoy",
+                    "İsmet İnönü"
+                ]
+            }
+        ],
+        "İNG": [
+            {
+                "q": "'If I study hard, I will pass' hangi type conditionals (koşul) cümlesidir?",
+                "a": "Type 1",
+                "s": [
+                    "Type 0",
+                    "Type 1",
+                    "Type 2"
+                ]
+            },
+            {
+                "q": "'Responsible' ne demektir?",
+                "a": "Sorumlu",
+                "s": [
+                    "Tembel",
+                    "Sorumlu",
+                    "Çalışkan"
+                ]
+            }
+        ],
+        "DİN": [
+            {
+                "q": "Zekat kimlere verilmez?",
+                "a": "Anne ve Babaya",
+                "s": [
+                    "Fakirlere",
+                    "Yoksullara",
+                    "Anne ve Babaya"
+                ]
+            },
+            {
+                "q": "Haccın şartlarından olan Arafat'ta bir süre beklemeye ne denir?",
+                "a": "Vakfe",
+                "s": [
+                    "Tavaf",
+                    "Vakfe",
+                    "İhram"
+                ]
+            }
+        ]
+    },
+    "9": {
+        "MAT": [
+            {
+                "q": "A={1, 2, 3, 4} kümesinin alt küme sayısı kaçtır?",
+                "a": "16",
+                "s": [
+                    "8",
+                    "16",
+                    "32"
+                ]
+            },
+            {
+                "q": "Mantıkta p v p' (p veya p'nin değili) neye denktir?",
+                "a": "1",
+                "s": [
+                    "0",
+                    "1",
+                    "p"
+                ]
+            }
+        ],
+        "FİZ": [
+            {
+                "q": "Skaler bir büyüklük hangisidir?",
+                "a": "Kütle",
+                "s": [
+                    "Hız",
+                    "Kuvvet",
+                    "Kütle"
+                ]
+            },
+            {
+                "q": "Enerjinin birimi nedir?",
+                "a": "Joule",
+                "s": [
+                    "Newton",
+                    "Watt",
+                    "Joule"
+                ]
+            }
+        ],
+        "KİM": [
+            {
+                "q": "Kimyanın sembolik dilinde 'Na' hangi elementtir?",
+                "a": "Sodyum",
+                "s": [
+                    "Azot",
+                    "Neon",
+                    "Sodyum"
+                ]
+            },
+            {
+                "q": "Thomson atom modeline ne isim verilir?",
+                "a": "Üzümlü Kek",
+                "s": [
+                    "Gezegen Modeli",
+                    "Bilardo Topu",
+                    "Üzümlü Kek"
+                ]
+            }
+        ],
+        "BİY": [
+            {
+                "q": "Hücre zarından madde geçişlerinde ATP harcanan olay hangisidir?",
+                "a": "Aktif Taşıma",
+                "s": [
+                    "Difüzyon",
+                    "Osmoz",
+                    "Aktif Taşıma"
+                ]
+            },
+            {
+                "q": "Canlıların ortak özelliklerinden hangisi enerjiyi kullanmayı ifade eder?",
+                "a": "Metabolizma",
+                "s": [
+                    "Üreme",
+                    "Metabolizma",
+                    "Boşaltım"
+                ]
+            }
+        ],
+        "EDE": [
+            {
+                "q": "Türk edebiyatının ilk yazılı belgesi nedir?",
+                "a": "Orhun Abideleri (Göktürk Yazıtları)",
+                "s": [
+                    "Dede Korkut Hikayeleri",
+                    "Orhun Abideleri (Göktürk Yazıtları)",
+                    "Kutadgu Bilig"
+                ]
+            },
+            {
+                "q": "Olay etrafında gelişen metinlerde yer, zaman ve kahraman unsurlarına ne denir?",
+                "a": "Yapı Unsurları",
+                "s": [
+                    "Tema",
+                    "Yapı Unsurları",
+                    "Ana Fikir"
+                ]
+            }
+        ],
+        "TAR": [
+            {
+                "q": "Tarihte bilinen ilk yazıyı kimler bulmuştur?",
+                "a": "Sümerler",
+                "s": [
+                    "Mısırlılar",
+                    "Sümerler",
+                    "Akadlar"
+                ]
+            },
+            {
+                "q": "Türk adıyla kurulan ilk devlet hangisidir?",
+                "a": "Göktürkler",
+                "s": [
+                    "Hunlar",
+                    "Göktürkler",
+                    "Uygurlar"
+                ]
+            }
+        ],
+        "COĞ": [
+            {
+                "q": "Ekvator'dan kutuplara gidildikçe sıcaklığın düşmesine ne denir?",
+                "a": "Enlem Etkisi",
+                "s": [
+                    "Boylam Etkisi",
+                    "Enlem Etkisi",
+                    "Yükselti Etkisi"
+                ]
+            },
+            {
+                "q": "Kıta kayma teorisini (Pangea) kim ortaya atmıştır?",
+                "a": "Alfred Wegener",
+                "s": [
+                    "Einstein",
+                    "Alfred Wegener",
+                    "Galileo"
+                ]
+            }
+        ],
+        "FEL": [
+            {
+                "q": "Felsefe ilk nerede ortaya çıkmıştır?",
+                "a": "Antik Yunan (İyonya)",
+                "s": [
+                    "Mezopotamya",
+                    "Antik Yunan (İyonya)",
+                    "Mısır"
+                ]
+            },
+            {
+                "q": "'Bildigim tek şey hiçbir şey bilmediğimdir' sözü kime aittir?",
+                "a": "Sokrates",
+                "s": [
+                    "Platon",
+                    "Aristo",
+                    "Sokrates"
+                ]
+            }
+        ]
+    },
+    "10": {
+        "MAT": [
+            {
+                "q": "P(n, 2) = 20 ise n kaçtır?",
+                "a": "5",
+                "s": [
+                    "4",
+                    "5",
+                    "6"
+                ]
+            },
+            {
+                "q": "İkinci dereceden bir denklemin deltası (diskriminant) sıfırdan küçükse kök durumu nedir?",
+                "a": "Gerçel kök yoktur",
+                "s": [
+                    "İki farklı kök vardır",
+                    "Çakışık kök vardır",
+                    "Gerçel kök yoktur"
+                ]
+            }
+        ],
+        "FİZ": [
+            {
+                "q": "Elektrik akımının birimi nedir?",
+                "a": "Amper",
+                "s": [
+                    "Volt",
+                    "Ohm",
+                    "Amper"
+                ]
+            },
+            {
+                "q": "Bir telin direnci, telin uzunluğu ile nasıl orantılıdır?",
+                "a": "Doğru Orantılı",
+                "s": [
+                    "Ters Orantılı",
+                    "Doğru Orantılı",
+                    "Orantısızdır"
+                ]
+            }
+        ],
+        "KİM": [
+            {
+                "q": "Mol sayısı formülü nedir?",
+                "a": "n = m/Ma",
+                "s": [
+                    "m = n/Ma",
+                    "n = m/Ma",
+                    "Ma = n*m"
+                ]
+            },
+            {
+                "q": "Homojen karışımlara genel olarak ne ad verilir?",
+                "a": "Çözelti",
+                "s": [
+                    "Süspansiyon",
+                    "Emülsiyon",
+                    "Çözelti"
+                ]
+            }
+        ],
+        "BİY": [
+            {
+                "q": "Mayoz bölünme sonucunda kaç kromozomlu hücreler oluşur?",
+                "a": "n (Haploit)",
+                "s": [
+                    "2n (Diploit)",
+                    "n (Haploit)",
+                    "3n"
+                ]
+            },
+            {
+                "q": "Mendel genetiğinde her iki genin de aynı olması durumuna ne denir?",
+                "a": "Homozigot",
+                "s": [
+                    "Heterozigot",
+                    "Homozigot",
+                    "Baskın"
+                ]
+            }
+        ],
+        "EDE": [
+            {
+                "q": "Divan edebiyatında şairlerin mahlaslarını aldıkları ve şiirlerini topladıkları esere ne denir?",
+                "a": "Divan",
+                "s": [
+                    "Mesnevi",
+                    "Cönk",
+                    "Divan"
+                ]
+            },
+            {
+                "q": "İslamiyet öncesi Türk edebiyatında 'ağıt' türüne ne ad verilirdi?",
+                "a": "Sagu",
+                "s": [
+                    "Koşuk",
+                    "Sav",
+                    "Sagu"
+                ]
+            }
+        ],
+        "TAR": [
+            {
+                "q": "Osmanlı Devleti'nde ilk düzenli orduyu kim kurmuştur?",
+                "a": "Orhan Bey (Yaya ve Müsellem)",
+                "s": [
+                    "Osman Bey",
+                    "I. Murat",
+                    "Orhan Bey (Yaya ve Müsellem)"
+                ]
+            },
+            {
+                "q": "İstanbul'un fethinin dünya tarihi açısından en önemli sonucu nedir?",
+                "a": "Orta Çağ bitti, Yeni Çağ başladı",
+                "s": [
+                    "Rönesans başladı",
+                    "Orta Çağ bitti, Yeni Çağ başladı",
+                    "Kavimler Göçü başladı"
+                ]
+            }
+        ],
+        "COĞ": [
+            {
+                "q": "Dünya'nın iç yapısında en sıcak katman hangisidir?",
+                "a": "İç Çekirdek",
+                "s": [
+                    "Manto",
+                    "İç Çekirdek",
+                    "Yer Kabuğu"
+                ]
+            },
+            {
+                "q": "Yeraltı sularının kireçtaşını eritmesiyle oluşan yeryüzü şekillerine ne denir?",
+                "a": "Karstik Şekiller",
+                "s": [
+                    "Buzul Şekiller",
+                    "Karstik Şekiller",
+                    "Volkanik Şekiller"
+                ]
+            }
+        ],
+        "FEL": [
+            {
+                "q": "Varlık felsefesinin (Ontoloji) temel sorusu nedir?",
+                "a": "Varlık var mıdır?",
+                "s": [
+                    "Bilgi nedir?",
+                    "Varlık var mıdır?",
+                    "Ahlak nedir?"
+                ]
+            },
+            {
+                "q": "Fayda ahlakını (Pragmatizm) savunan felsefi akım hangisidir?",
+                "a": "Faydacılık",
+                "s": [
+                    "Nihilizm",
+                    "Faydacılık",
+                    "Egzistansiyalizm"
+                ]
+            }
+        ]
+    },
+    "11": {
+        "MAT": [
+            {
+                "q": "sin²x + cos²x ifadesinin eşiti nedir?",
+                "a": "1",
+                "s": [
+                    "0",
+                    "1",
+                    "tanx"
+                ]
+            },
+            {
+                "q": "f(x) = 2x - 5 fonksiyonunun tersi f⁻¹(x) nedir?",
+                "a": "(x+5)/2",
+                "s": [
+                    "(x-5)/2",
+                    "2x+5",
+                    "(x+5)/2"
+                ]
+            }
+        ],
+        "FİZ": [
+            {
+                "q": "Kuvvetin döndürücü etkisine ne ad verilir?",
+                "a": "Tork",
+                "s": [
+                    "İtme",
+                    "Tork",
+                    "Momentum"
+                ]
+            },
+            {
+                "q": "Ağırlık merkezi ile kütle merkezi her zaman aynı noktada mıdır?",
+                "a": "Hayır",
+                "s": [
+                    "Evet",
+                    "Hayır",
+                    "Sadece sıvılarda"
+                ]
+            }
+        ],
+        "KİM": [
+            {
+                "q": "Modern atom teorisinde elektronların bulunma ihtimalinin en yüksek olduğu bölgelere ne denir?",
+                "a": "Orbital",
+                "s": [
+                    "Katman",
+                    "Çekirdek",
+                    "Orbital"
+                ]
+            },
+            {
+                "q": "Sabit sıcaklıkta bir gazın hacmi ile basıncı arasındaki ilişkiyi hangi yasa açıklar?",
+                "a": "Boyle Yasası",
+                "s": [
+                    "Charles Yasası",
+                    "Boyle Yasası",
+                    "Avogadro Yasası"
+                ]
+            }
+        ],
+        "BİY": [
+            {
+                "q": "Sinir hücrelerinde uyartı iletimini hızlandıran ve miyelin kılıf kesintilerinden oluşan bölgelere ne denir?",
+                "a": "Ranvier boğumu",
+                "s": [
+                    "Akson",
+                    "Dendrit",
+                    "Ranvier boğumu"
+                ]
+            },
+            {
+                "q": "Kan şekerini düşüren hormon hangisidir?",
+                "a": "İnsülin",
+                "s": [
+                    "Glukagon",
+                    "Adrenalin",
+                    "İnsülin"
+                ]
+            }
+        ],
+        "EDE": [
+            {
+                "q": "Türk edebiyatında ilk yerli roman hangisidir?",
+                "a": "Taaşşuk-ı Talat ve Fitnat",
+                "s": [
+                    "İntibah",
+                    "Araba Sevdası",
+                    "Taaşşuk-ı Talat ve Fitnat"
+                ]
+            },
+            {
+                "q": "Servetifünun edebiyatının en önemli şairi kimdir?",
+                "a": "Tevfik Fikret",
+                "s": [
+                    "Namık Kemal",
+                    "Cenap Şahabettin",
+                    "Tevfik Fikret"
+                ]
+            }
+        ],
+        "TAR": [
+            {
+                "q": "1877-1878 Osmanlı-Rus Savaşı'nın (93 Harbi) ardından imzalanan fakat yürürlüğe girmeyen antlaşma hangisidir?",
+                "a": "Ayastefanos (Yeşilköy)",
+                "s": [
+                    "Berlin",
+                    "Ayastefanos (Yeşilköy)",
+                    "Paris"
+                ]
+            },
+            {
+                "q": "Osmanlı Devleti'nde ilk anayasa olan Kanun-i Esasi hangi padişah döneminde ilan edilmiştir?",
+                "a": "II. Abdülhamid",
+                "s": [
+                    "Abdülmecid",
+                    "II. Mahmud",
+                    "II. Abdülhamid"
+                ]
+            }
+        ],
+        "COĞ": [
+            {
+                "q": "Türkiye'de biyoçeşitliliğin en fazla olduğu ormanlık bölge hangisidir?",
+                "a": "Karadeniz",
+                "s": [
+                    "Akdeniz",
+                    "Karadeniz",
+                    "Ege"
+                ]
+            },
+            {
+                "q": "Madde döngülerinde karbonun en büyük deposu neresidir?",
+                "a": "Litosfer (Taş Küre)",
+                "s": [
+                    "Atmosfer",
+                    "Biyosfer",
+                    "Litosfer (Taş Küre)"
+                ]
+            }
+        ],
+        "FEL": [
+            {
+                "q": "'Düşünüyorum, öyleyse varım' sözüyle rasyonalizmi savunan filozof kimdir?",
+                "a": "Descartes",
+                "s": [
+                    "Sokrates",
+                    "Kant",
+                    "Descartes"
+                ]
+            },
+            {
+                "q": "15-17. yüzyıl felsefesinin merkezinde genel olarak ne vardır?",
+                "a": "Akıl ve Bilim (Rönesans)",
+                "s": [
+                    "Din ve İlahiyat",
+                    "Akıl ve Bilim (Rönesans)",
+                    "Mitoloji"
+                ]
+            }
+        ]
+    },
+    "12": {
+        "MAT": [
+            {
+                "q": "f(x) = x³ fonksiyonunun türevi nedir?",
+                "a": "3x²",
+                "s": [
+                    "2x³",
+                    "3x²",
+                    "3x"
+                ]
+            },
+            {
+                "q": "log₁₀(100) ifadesinin değeri kaçtır?",
+                "a": "2",
+                "s": [
+                    "1",
+                    "2",
+                    "10"
+                ]
+            }
+        ],
+        "FİZ": [
+            {
+                "q": "Işığın hem dalga hem de tanecik özelliği gösterdiğini kanıtlayan olaya ne denir?",
+                "a": "Fotoelektrik Etki",
+                "s": [
+                    "Girişim",
+                    "Kırınım",
+                    "Fotoelektrik Etki"
+                ]
+            },
+            {
+                "q": "Einstein'ın E=mc² formülündeki 'c' harfi neyi temsil eder?",
+                "a": "Işık Hızı",
+                "s": [
+                    "Kütle",
+                    "Işık Hızı",
+                    "Enerji"
+                ]
+            }
+        ],
+        "KİM": [
+            {
+                "q": "Sadece karbon ve hidrojen atomlarından oluşan bileşiklere ne denir?",
+                "a": "Hidrokarbon",
+                "s": [
+                    "Alkol",
+                    "Hidrokarbon",
+                    "Eter"
+                ]
+            },
+            {
+                "q": "Anotta hangi kimyasal olay gerçekleşir?",
+                "a": "Yükseltgenme",
+                "s": [
+                    "İndirgenme",
+                    "Nötrleşme",
+                    "Yükseltgenme"
+                ]
+            }
+        ],
+        "BİY": [
+            {
+                "q": "DNA'daki genetik bilginin RNA'ya kopyalanmasına ne ad verilir?",
+                "a": "Transkripsiyon",
+                "s": [
+                    "Translasyon",
+                    "Replikasyon",
+                    "Transkripsiyon"
+                ]
+            },
+            {
+                "q": "Oksijenli solunumda en fazla ATP nerede üretilir?",
+                "a": "ETS (Elektron Taşıma Sistemi)",
+                "s": [
+                    "Glikoliz",
+                    "Krebs Döngüsü",
+                    "ETS (Elektron Taşıma Sistemi)"
+                ]
+            }
+        ],
+        "EDE": [
+            {
+                "q": "Cumhuriyet Dönemi'nde 'Garip' akımının kurucusu kimdir?",
+                "a": "Orhan Veli Kanık",
+                "s": [
+                    "Cemal Süreya",
+                    "Orhan Veli Kanık",
+                    "Attila İlhan"
+                ]
+            },
+            {
+                "q": "İkinci Yeni akımının önde gelen isimlerinden biri kimdir?",
+                "a": "Cemal Süreya",
+                "s": [
+                    "Orhan Veli",
+                    "Cemal Süreya",
+                    "Melih Cevdet"
+                ]
+            }
+        ],
+        "TAR": [
+            {
+                "q": "II. Dünya Savaşı sırasında Türkiye'nin cumhurbaşkanı kimdi?",
+                "a": "İsmet İnönü",
+                "s": [
+                    "Mustafa Kemal Atatürk",
+                    "İsmet İnönü",
+                    "Celal Bayar"
+                ]
+            },
+            {
+                "q": "Soğuk Savaş döneminde SSCB öncülüğünde kurulan askeri ittifakın adı nedir?",
+                "a": "Varşova Paktı",
+                "s": [
+                    "NATO",
+                    "Varşova Paktı",
+                    "Birleşmiş Milletler"
+                ]
+            }
+        ],
+        "COĞ": [
+            {
+                "q": "Dünyada ilk milli park uygulaması hangi ülkede başlamıştır?",
+                "a": "ABD (Yellowstone)",
+                "s": [
+                    "İngiltere",
+                    "Türkiye",
+                    "ABD (Yellowstone)"
+                ]
+            },
+            {
+                "q": "Gelişmiş ülkelerin nüfus piramidi genel olarak ne şekildedir?",
+                "a": "Arı Kovanı veya Çan Şekli",
+                "s": [
+                    "Geniş Tabanlı Üçgen",
+                    "Ters Üçgen",
+                    "Arı Kovanı veya Çan Şekli"
+                ]
+            }
+        ],
+        "FEL": [
+            {
+                "q": "20. Yüzyıl felsefesinde 'Varoluşçuluk' (Egzistansiyalizm) akımının öncüsü kimdir?",
+                "a": "Jean-Paul Sartre",
+                "s": [
+                    "Immanuel Kant",
+                    "Jean-Paul Sartre",
+                    "Karl Marx"
+                ]
+            },
+            {
+                "q": "Thomas Kuhn'a göre bilimin gelişiminde bilimsel doğruların değişmesine ne ad verilir?",
+                "a": "Paradigma Değişimi",
+                "s": [
+                    "Yanlışlanabilirlik",
+                    "Paradigma Değişimi",
+                    "Diyalektik"
+                ]
+            }
+        ]
+    }
+}
