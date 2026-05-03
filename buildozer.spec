@@ -5,7 +5,7 @@ package.domain = com.asrin.oyun
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,ico,json,mp3,wav,ogg,txt
 version = 0.1
-requirements = python3,pygame==2.1.2
+requirements = python3,pygame==2.1.2,sdl2_ttf,sdl2_image,sdl2_mixer
 orientation = landscape
 fullscreen = 1
 android.archs = arm64-v8a, armeabi-v7a
