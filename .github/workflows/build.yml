@@ -4,15 +4,24 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Buildozer ile APK Uret
-        uses: digreatbrian/buildozer-action@v2
+      - name: Altyapiyi Kur
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip3 install --user --upgrade buildozer cython virtualenv
 
-      - name: APK'yi Yukle
+      - name: APK'yi Pisir
+        run: |
+          export PATH=$PATH:~/.local/bin
+          buildozer android debug
+
+      - name: APK'yi Cikar
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: Bilgi_Labirenti_APK
           path: bin/*.apk
